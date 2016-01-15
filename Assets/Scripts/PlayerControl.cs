@@ -10,8 +10,6 @@ public class PlayerControl : MonoBehaviour {
 	Rigidbody rbody1;
 	Vector3 inputVector;
 	bool isWalking = false;
-	bool isAttacking = false;
-
 	float storedRotation = 0;
 
 	// Use this for initialization
@@ -37,6 +35,12 @@ public class PlayerControl : MonoBehaviour {
 			myAnimator1.SetTrigger("isAttacking");
 			isWalking = false;
 		}
+
+		//if(Input.GetKeyDown("Space")){
+			//short press dodge
+			//start timer, if held for a certain length of time, long press dodge
+
+		//}
 	}
 
 	// Update is called once per frame
@@ -46,6 +50,8 @@ public class PlayerControl : MonoBehaviour {
 		rbody1.velocity += new Vector3( 0f, yVelocity, 0f);
 
 		myAnimator1.SetBool("isWalking", isWalking);
+
+
 
 
 

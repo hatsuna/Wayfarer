@@ -1,6 +1,6 @@
 fileFormatVersion: 2
 guid: 5b6a83b5372942240996c224d0876886
-timeCreated: 1452031551
+timeCreated: 1452810173
 licenseType: Free
 ModelImporter:
   serializedVersion: 19
@@ -81,7 +81,7 @@ ModelImporter:
     animationImportWarnings: 
     animationRetargetingWarnings: 
     animationDoRetargetingWarnings: 0
-    animationCompression: 1
+    animationCompression: 3
     animationRotationError: 0.5
     animationPositionError: 0.5
     animationScaleError: 0.5
@@ -136,29 +136,29 @@ ModelImporter:
       - path: joint1/joint10
         weight: 1
       - path: joint1/joint10/joint11
-        weight: 1
+        weight: 0
       - path: joint1/joint10/joint11/joint12
-        weight: 1
+        weight: 0
       - path: joint1/joint10/joint11/joint12/joint13
-        weight: 1
+        weight: 0
       - path: joint1/joint10/joint11/joint12/joint13/joint14
-        weight: 1
+        weight: 0
       - path: joint1/joint10/joint11/joint15
-        weight: 1
+        weight: 0
       - path: joint1/joint10/joint11/joint15/joint16
-        weight: 1
+        weight: 0
       - path: joint1/joint10/joint11/joint15/joint16/joint17
-        weight: 1
+        weight: 0
       - path: joint1/joint10/joint11/joint15/joint16/joint17/joint18
-        weight: 1
+        weight: 0
       - path: joint1/joint10/joint11/joint19
-        weight: 1
+        weight: 0
       - path: joint1/joint10/joint11/joint19/joint20
-        weight: 1
+        weight: 0
       - path: joint1/joint10/joint11/joint19/joint20/joint21
-        weight: 1
+        weight: 0
       - path: joint1/joint10/joint11/joint19/joint20/joint21/joint22
-        weight: 1
+        weight: 0
       - path: pCube1
         weight: 1
       - path: pCube1/transform2
@@ -286,21 +286,21 @@ ModelImporter:
       - path: joint1
         weight: 1
       - path: joint1/joint2
-        weight: 1
+        weight: 0
       - path: joint1/joint2/joint3
-        weight: 1
+        weight: 0
       - path: joint1/joint2/joint3/joint4
-        weight: 1
+        weight: 0
       - path: joint1/joint2/joint3/joint4/joint5
-        weight: 1
+        weight: 0
       - path: joint1/joint6
-        weight: 1
+        weight: 0
       - path: joint1/joint6/joint7
-        weight: 1
+        weight: 0
       - path: joint1/joint6/joint7/joint8
-        weight: 1
+        weight: 0
       - path: joint1/joint6/joint7/joint8/joint9
-        weight: 1
+        weight: 0
       - path: joint1/joint10
         weight: 1
       - path: joint1/joint10/joint11
