@@ -1,7 +1,7 @@
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2008
 
-Project("{60F06D1F-2B26-CC74-21A8-292951756C9D}") = "Wayfarer", "Assembly-CSharp.csproj", "{A0ECCD6C-5033-5707-3249-8494C8CEFB67}"
+Project("{60F06D1F-2B26-CC74-21A8-292951756C9D}") = "Wayfarer", "Assembly-CSharp-vs.csproj", "{A0ECCD6C-5033-5707-3249-8494C8CEFB67}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,7 +17,7 @@ Global
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
-													GlobalSection(MonoDevelopProperties) = preSolution
+														GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = Assembly-CSharp.csproj
 	EndGlobalSection
 
