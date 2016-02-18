@@ -6,6 +6,7 @@ public class HitDetection : MonoBehaviour {
 	//This goes on weapons
 	Animator charAnim; //set in start
 	AudioSource audio;
+	public AudioClip sword_swing;
 	public AudioClip sword_collide;
 	public AudioClip hurt;
 
@@ -26,16 +27,31 @@ public class HitDetection : MonoBehaviour {
 			//gameObject.GetComponent<Material>().color = Color.red;
 			Debug.Log("parried!");
 			charAnim.SetTrigger("isParried");
-			audio.clip = sword_collide; 
-			audio.volume = 0.1f;
-			audio.Play();
+			PlayClip("sword_collide");
 		} else if(collision.collider.gameObject.tag == "Player"){
 			Debug.Log("hit!");
+			PlayClip("hurt");
+		}
+	}
+
+	public void PlayClip(string clipName){
+		switch(clipName){
+		case "sword_swing":
+			audio.clip = sword_swing;
+			audio.volume = 0.1f;
+			break;
+		case "sword_collide":
+			audio.clip = sword_collide; 
+			audio.volume = 0.1f;
+			break;
+		case "hurt":
 			audio.clip = hurt;
 			audio.volume = 1.0f;
-			audio.Play();
+			break;
+		default:
+			break;
 		}
-	
-
+		audio.Play();
+		
 	}
 }

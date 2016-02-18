@@ -3,7 +3,6 @@ using System.Collections;
 using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour {
-
 	//public Text textUI;
 	public Skybox skybox;
 
@@ -14,7 +13,12 @@ public class GameManager : MonoBehaviour {
 	public Canvas bookUI;
 	public Canvas battleUI;
 
+	public GameObject player1;
+	public GameObject player2;
+
 	string GameState = "Start";
+
+	Text textBuffer;
 	/*
 	 * Start
 	 * Book
@@ -29,21 +33,27 @@ public class GameManager : MonoBehaviour {
 		startUI.gameObject.SetActive(true);
 		bookUI.gameObject.SetActive(false);
 		battleUI.gameObject.SetActive(false);
+
+		player1.SetActive(false);
+		player2.SetActive(false);
+
+		Cursor.lockState = CursorLockMode.Confined;
+		Cursor.visible = true;
 	}
 	
 	// Update is called once per frame
 	void Update () {
 	switch(GameState){
 		case "Start":
-			Text startText = startUI.GetComponentInChildren<Text>();
-				startText.text = "Wayfarer\n" +
-				"a game by matt\n\n" +
+			textBuffer = startUI.GetComponentInChildren<Text>();
+				textBuffer.text = "Wayfarer\n" +
+				"a game by matt\n\n" + 
 					"press [Space] to continue";
 
 
 			if(Input.GetKeyDown (KeyCode.Space)){
-				startText.text = "";
-				GameState = "Battle";
+				textBuffer.text = "";
+				GameState = "Book";
 			}
 			break;
 		case "Book":
@@ -51,6 +61,18 @@ public class GameManager : MonoBehaviour {
 			bookUI.gameObject.SetActive(true);
 			battleUI.gameObject.SetActive(false);
 
+			textBuffer = bookUI.GetComponentInChildren<Text>();
+			textBuffer.text = "Reading a book\n\n" +
+				"press [Space] to fight";
+
+
+			if(Input.GetKeyDown (KeyCode.Space)){
+				textBuffer.text = "";
+				GameState = "Battle";
+
+				Cursor.lockState = CursorLockMode.Locked;
+				Cursor.visible = false;
+			}
 			break;
 		case "Battle":
 			bookCamera.gameObject.SetActive(false);
@@ -59,6 +81,9 @@ public class GameManager : MonoBehaviour {
 			startUI.gameObject.SetActive(false);
 			bookUI.gameObject.SetActive(false);
 			battleUI.gameObject.SetActive(true);
+
+			player1.SetActive(true);
+			player2.SetActive(true);
 
 			break;
 		default:
