@@ -44,16 +44,14 @@ public class PlayerControl : MonoBehaviour {
 			storedRotation = 0.0f;
 		}
 
-		if(Input.GetMouseButtonDown(0)){
+		if(Input.GetMouseButtonDown(0)){ 
 			myCamera.RotateAround(transform.position, Vector3.up, -storedRotation);
 			transform.Rotate(0f, storedRotation, 0f);
 			myAnimator1.SetTrigger("isAttacking");
 			isWalking = false;
 			storedRotation = 0.0f;
 			weapon.GetComponent<HitDetection>().PlayClip("sword_swing");
-
 		}
-
 
 		//start dodge timer
 		if(Input.GetKey(KeyCode.Space) && dodgeCooldown <= 0.0f){
@@ -72,8 +70,20 @@ public class PlayerControl : MonoBehaviour {
 			//long dodge animation
 			Debug.Log ("dodge roll");
 			dodgeMultiplier = 5.0f;
-			dodgeLength = 0.5f;
+			dodgeLength = 0.4f;
 			dodgeTimer = 0.0f;
+		}
+
+		if(Input.GetKey(KeyCode.LeftShift) && dodgeMultiplier != 0){
+			if(inputVector.z <= 0.0f) { //if not moving forward
+				Debug.Log ("Sprinting not forward");
+				moveSpeed = 7.0f;
+			} else { // is moving forward
+				Debug.Log ("Sprinting forward");
+				moveSpeed = 10.0f;
+			}
+		} else { // not sprinting or currently dodging
+			moveSpeed = 5.0f;
 		}
 
 		myAnimator1.SetBool("isWalking", isWalking);
