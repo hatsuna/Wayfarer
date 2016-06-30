@@ -46,9 +46,16 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\Scripts\AIController.cs" />
+     <Compile Include="Assets\Scripts\ControllerStateManager.cs" />
+     <Compile Include="Assets\Scripts\ForcePush.cs" />
      <Compile Include="Assets\Scripts\GameManager.cs" />
+     <Compile Include="Assets\Scripts\GrabAndThrow.cs" />
      <Compile Include="Assets\Scripts\HitDetection.cs" />
+     <Compile Include="Assets\Scripts\PickupObject.cs" />
      <Compile Include="Assets\Scripts\PlayerControl.cs" />
+     <Compile Include="Assets\Scripts\Rays.cs" />
+     <Compile Include="Assets\Scripts\SphereTrigger.cs" />
+     <Compile Include="Assets\Scripts\ToggleVR.cs" />
      <Compile Include="Assets\SteamVR\Extras\SteamVR_GazeTracker.cs" />
      <Compile Include="Assets\SteamVR\Extras\SteamVR_LaserPointer.cs" />
      <Compile Include="Assets\SteamVR\Extras\SteamVR_Teleporter.cs" />

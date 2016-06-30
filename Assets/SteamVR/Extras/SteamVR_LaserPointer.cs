@@ -39,6 +39,10 @@ public class SteamVR_LaserPointer : MonoBehaviour
         pointer.transform.localScale = new Vector3(thickness, thickness, 100f);
         pointer.transform.localPosition = new Vector3(0f, 0f, 50f);
         BoxCollider collider = pointer.GetComponent<BoxCollider>();
+
+		//newcode
+		holder.transform.localEulerAngles = Vector3.zero;
+
         if (addRigidBody)
         {
             if (collider)
