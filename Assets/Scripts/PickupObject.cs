@@ -21,11 +21,11 @@ public class PickupObject : MonoBehaviour
 	{
 		var device = SteamVR_Controller.Input((int)trackedObj.index);
 
-		if ( device.GetTouch(SteamVR_Controller.ButtonMask.Trigger)){
+		if ( device.GetTouch(SteamVR_Controller.ButtonMask.Grip)){
 			Debug.Log("button is being pressed");
 		}
 
-		if (joint == null && device.GetTouchDown(SteamVR_Controller.ButtonMask.Trigger))
+		if (joint == null && device.GetTouchDown(SteamVR_Controller.ButtonMask.Grip))
 		{
 			if(sphereTrigger.triggered != null){
 				sphereTrigger.triggered.transform.position = attachPoint.transform.position;
@@ -34,7 +34,7 @@ public class PickupObject : MonoBehaviour
 				joint.connectedBody = attachPoint;
 			}
 		}
-		else if (joint != null && device.GetTouchUp(SteamVR_Controller.ButtonMask.Trigger))
+		else if (joint != null && device.GetTouchUp(SteamVR_Controller.ButtonMask.Grip))
 		{
 			var go = joint.gameObject;
 			var rigidbody = go.GetComponent<Rigidbody>();

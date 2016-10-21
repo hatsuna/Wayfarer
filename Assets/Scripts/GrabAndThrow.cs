@@ -20,7 +20,7 @@ public class GrabAndThrow : MonoBehaviour
 	void FixedUpdate()
 	{
 		var device = SteamVR_Controller.Input((int)trackedObj.index);
-		if (joint == null && device.GetTouchDown(SteamVR_Controller.ButtonMask.Trigger))
+		if (joint == null && device.GetTouchDown(SteamVR_Controller.ButtonMask.Grip))
 		{
 			var go = GameObject.Instantiate(prefab);
 			go.transform.position = attachPoint.transform.position;
@@ -28,7 +28,7 @@ public class GrabAndThrow : MonoBehaviour
 			joint = go.AddComponent<FixedJoint>();
 			joint.connectedBody = attachPoint;
 		}
-		else if (joint != null && device.GetTouchUp(SteamVR_Controller.ButtonMask.Trigger))
+		else if (joint != null && device.GetTouchUp(SteamVR_Controller.ButtonMask.Grip))
 		{
 			var go = joint.gameObject;
 			var rigidbody = go.GetComponent<Rigidbody>();

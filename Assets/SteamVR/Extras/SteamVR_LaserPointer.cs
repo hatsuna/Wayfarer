@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿//======= Copyright (c) Valve Corporation, All rights reserved. ===============
+using UnityEngine;
 using System.Collections;
 
 public struct PointerEventArgs
@@ -39,10 +40,6 @@ public class SteamVR_LaserPointer : MonoBehaviour
         pointer.transform.localScale = new Vector3(thickness, thickness, 100f);
         pointer.transform.localPosition = new Vector3(0f, 0f, 50f);
         BoxCollider collider = pointer.GetComponent<BoxCollider>();
-
-		//newcode
-		holder.transform.localEulerAngles = Vector3.zero;
-
         if (addRigidBody)
         {
             if (collider)
@@ -59,9 +56,22 @@ public class SteamVR_LaserPointer : MonoBehaviour
                 Object.Destroy(collider);
             }
         }
-        Material newMaterial = new Material(Shader.Find("Unlit/Color"));
+
+		//correcting transparency for lasers
+        Material newMaterial = new Material(Shader.Find("Standard"));
+		newMaterial.SetFloat("_Mode", 3);
+		newMaterial.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+		newMaterial.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+		newMaterial.SetInt("_ZWrite", 0);
+		newMaterial.DisableKeyword("_ALPHATEST_ON");
+		newMaterial.EnableKeyword("_ALPHABLEND_ON");
+		newMaterial.DisableKeyword("_ALPHAPREMULTIPLY_ON");
+		newMaterial.renderQueue = 3000;
         newMaterial.SetColor("_Color", color);
         pointer.GetComponent<MeshRenderer>().material = newMaterial;
+
+		//correcting laser pointers
+		holder.transform.localEulerAngles = Vector3.zero;
 	}
 
     public virtual void OnPointerIn(PointerEventArgs e)
