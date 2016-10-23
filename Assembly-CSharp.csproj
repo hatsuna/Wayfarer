@@ -49,6 +49,7 @@
      <Compile Include="Assets\Scripts\ControllerStateManager.cs" />
      <Compile Include="Assets\Scripts\GameManager.cs" />
      <Compile Include="Assets\Scripts\GrabAndThrow.cs" />
+     <Compile Include="Assets\Scripts\HitDetect.cs" />
      <Compile Include="Assets\Scripts\HitDetection.cs" />
      <Compile Include="Assets\Scripts\Launcher.cs" />
      <Compile Include="Assets\Scripts\PickupObject.cs" />

@@ -8,6 +8,8 @@ public class Rays : MonoBehaviour {
 	public float chestHeight; //Set at start as chest height as percent of body height, will change to actual height during runtime
 	public float drawDistance; //Set to maximum distance away from player lines can be drawn
 
+	float topSpeed = 0;
+
 	void Start() {
 		linerender = GetComponent<LineRenderer>();
 	}
@@ -22,5 +24,9 @@ public class Rays : MonoBehaviour {
 		else{
 			linerender.SetVertexCount(0);
 		}
+		//if(GetComponent<Rigidbody>().velocity.magnitude > topSpeed){
+		//	topSpeed = GetComponent<Rigidbody>().velocity.magnitude;
+			//Debug.Log("top speed is " + topSpeed);
+		//}
 	}
 }

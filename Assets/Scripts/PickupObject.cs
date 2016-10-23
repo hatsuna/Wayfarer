@@ -22,7 +22,7 @@ public class PickupObject : MonoBehaviour
 		var device = SteamVR_Controller.Input((int)trackedObj.index);
 
 		if ( device.GetTouch(SteamVR_Controller.ButtonMask.Grip)){
-			Debug.Log("button is being pressed");
+			//Debug.Log("button is being pressed");
 		}
 
 		if (joint == null && device.GetTouchDown(SteamVR_Controller.ButtonMask.Grip))

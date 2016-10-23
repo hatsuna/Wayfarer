@@ -7,11 +7,11 @@ public class Launcher : MonoBehaviour {
 	public GameObject bullet;
 	GameObject[] bullets;
 	bool maxReached = false;
-	int maxBullets = 20;
+	int maxBullets = 50;
 	int counter = 0;
 	float frequency = 3.0f;
 	float currentTime = 0.0f;
-	float force = 1000.0f;
+	float force = 50.0f;
 
 	// Called even when script is disabled
 	void Awake (){
@@ -40,6 +40,7 @@ public class Launcher : MonoBehaviour {
 				bullets[counter].transform.rotation = transform.rotation;
 			}
 			bullets[counter].GetComponent<Rigidbody>().AddForce(transform.forward * force, ForceMode.Force);
+			counter ++;
 		}
 	}
 }
