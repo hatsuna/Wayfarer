@@ -9,7 +9,7 @@ public class Launcher : MonoBehaviour {
 	bool maxReached = false;
 	int maxBullets = 50;
 	int counter = 0;
-	float frequency = 3.0f;
+	float frequency = 5.0f;
 	float currentTime = 0.0f;
 	float force = 50.0f;
 
@@ -38,6 +38,7 @@ public class Launcher : MonoBehaviour {
 			} else if (maxReached){
 				bullets[counter].transform.position = transform.position + transform.forward;
 				bullets[counter].transform.rotation = transform.rotation;
+				bullets[counter].GetComponent<Rigidbody>().velocity.Scale(Vector3.zero);
 			}
 			bullets[counter].GetComponent<Rigidbody>().AddForce(transform.forward * force, ForceMode.Force);
 			counter ++;

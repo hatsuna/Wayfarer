@@ -32,10 +32,12 @@ public class PickupObject : MonoBehaviour
 
 				joint = sphereTrigger.triggered.AddComponent<FixedJoint>();
 				joint.connectedBody = attachPoint;
+				device.TriggerHapticPulse(800);
 			}
 		}
 		else if (joint != null && device.GetTouchUp(SteamVR_Controller.ButtonMask.Grip))
 		{
+			device.TriggerHapticPulse(800);
 			var go = joint.gameObject;
 			var rigidbody = go.GetComponent<Rigidbody>();
 			Object.DestroyImmediate(joint);

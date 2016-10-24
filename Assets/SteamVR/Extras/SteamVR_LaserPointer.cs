@@ -17,7 +17,7 @@ public class SteamVR_LaserPointer : MonoBehaviour
 {
     public bool active = true;
     public Color color;
-    public float thickness = 0.002f;
+    public float thickness = 0.01f;
     public GameObject holder;
     public GameObject pointer;
     bool isActive = false;
