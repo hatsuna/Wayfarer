@@ -22,7 +22,7 @@ public class HitDetect : MonoBehaviour {
 	}
 
 	void OnCollisionEnter(Collision collision){
-		Debug.Log(gameObject.name + " collided with " + collision.collider.gameObject.name);
+		//Debug.Log(gameObject.name + " collided with " + collision.collider.gameObject.name);
 
 		Material newMaterial = new Material(Shader.Find("Standard"));
 

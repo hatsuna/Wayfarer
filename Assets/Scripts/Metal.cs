@@ -1,21 +1,22 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Rays : MonoBehaviour {
+public class Metal : MonoBehaviour {
 
 	public Transform headCamera; //Set to headCamera so that lines are always drawn to player's chest
 	LineRenderer linerender;
-	public float chestHeight; //Set at start as chest height as percent of body height, will change to actual height during runtime
-	public float drawDistance; //Set to maximum distance away from player lines can be drawn
+	float chestHeight = 0.75f; //Set at start as chest height as percent of body height, will change to actual height during runtime
+	float drawDistance = 100; //Set to maximum distance away from player lines can be drawn
 
-	float topSpeed = 0;
-
-	void Start() {
+	// Use this for initialization
+	void Awake(){
+		gameObject.tag = "Metal";
+		gameObject.layer = LayerMask.NameToLayer("Metal");
 		linerender = GetComponent<LineRenderer>();
+		headCamera = Camera.main.transform;
 	}
 
-	// Update is called once per frame
-	void FixedUpdate () {
+	void FixedUpdate(){
 		if (Vector3.Distance(headCamera.position, transform.position) <= drawDistance || drawDistance == 0){
 			linerender.SetVertexCount(2);
 			linerender.SetPosition(0, transform.position);
@@ -24,9 +25,5 @@ public class Rays : MonoBehaviour {
 		else{
 			linerender.SetVertexCount(0);
 		}
-		//if(GetComponent<Rigidbody>().velocity.magnitude > topSpeed){
-		//	topSpeed = GetComponent<Rigidbody>().velocity.magnitude;
-			//Debug.Log("top speed is " + topSpeed);
-		//}
 	}
 }
