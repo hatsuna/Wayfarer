@@ -190,19 +190,37 @@ public class SteamVRControls : MonoBehaviour {
 			// arc length = r * degrees
 			// use Z angular velocity
 			Vector3 angVelocity = device.angularVelocity;
+			angVelocity.y = 0;
+			float tempX = 0;
+			float tempZ = 0;
 			// this condition occurs when velocity is zero or switches signs
-			if (angularVshift == Vector3.zero || angVelocity.z * angularVshift.z <= 0 || angVelocity.x * angularVshift.x <= 0){
-				previousArc = currentArc;
-				currentArc = Vector3.zero;
+			if (angularVshift.x == 0 || angVelocity.x * angularVshift.x <= 0){
+				previousArc.x = currentArc.x;
+				currentArc.x = 0;
+			}else{
+				currentArc.x += Mathf.Abs(angVelocity.x) * Time.deltaTime;
+				if (previousArc.x == 0) {
+					tempX = transform.forward.x * (currentArc.x * Time.deltaTime);
+				} else {
+					tempX = transform.forward.x * (previousArc.x * Time.deltaTime);
+				}
+			}
+			if (angVelocity.x > 0){
+				angularVshift.x = 1;
+			} else if (angVelocity.x < 0){
+				angularVshift.x = -1;
+			} else{
+				angularVshift.x = 0;
+			}
+			if (angularVshift.z == 0 || angVelocity.z * angularVshift.z <= 0){
+				previousArc.z = currentArc.z;
+				currentArc.z = 0;
 			} else {
 				currentArc.z += Mathf.Abs(angVelocity.z) * Time.deltaTime;
-				currentArc.x += Mathf.Abs(angVelocity.x) * Time.deltaTime;
-				if (previousArc == Vector3.zero){
-					playAreaTransform.position += new Vector3(transform.forward.x * (currentArc.x * Time.deltaTime), 0,
-						transform.forward.z * (currentArc.z * Time.deltaTime));
-				}else{
-					playAreaTransform.position += new Vector3(transform.forward.x * (previousArc.x * Time.deltaTime), 0,
-						transform.forward.z * (previousArc.z * Time.deltaTime));
+				if (previousArc.z == 0){
+					tempZ = transform.forward.z * (currentArc.z * Time.deltaTime);
+				} else{
+					tempZ = transform.forward.z * (previousArc.z * Time.deltaTime);
 				}
 			}  
 			if (angVelocity.z > 0){
@@ -212,13 +230,7 @@ public class SteamVRControls : MonoBehaviour {
 			} else{
 				angularVshift.z = 0;
 			}
-			if (angVelocity.x > 0){
-				angularVshift.x = 1;
-			} else if (angVelocity.x < 0){
-				angularVshift.x = -1;
-			} else{
-				angularVshift.x = 0;
-			}
+			playAreaTransform.position += new Vector3 (tempX, 0, tempZ);
 		} else{//user lets go of button
 			angularVshift = Vector3.zero;
 			previousArc = Vector3.zero;
