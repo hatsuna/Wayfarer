@@ -37,6 +37,11 @@ public class bulletManager : MonoBehaviour {
 			int currentBullet = counter % maxBullets;
 			if (recycledBullets != null && recycledBullets.Count > 0){
 				currentBullet = (int) recycledBullets.Dequeue();
+				if (bullets[currentBullet] == null){
+					bullet temp = (bullet) Instantiate(bullet, bulletHolder.transform);
+					temp.identNumber = currentBullet;
+					bullets[currentBullet] = temp;
+				}
 			} else if (!maxReached){
 				bullet temp = (bullet) Instantiate(bullet, bulletHolder.transform);
 				temp.identNumber = counter;

@@ -8,9 +8,11 @@ public class SteamVRControls : MonoBehaviour {
 
 	//Includes Push, Pull and Grab
 
+	float grabStrength = 50;
+
 	//public GameObject head;
 	float minThrust = 0.0f;
-	float maxThrust = 50.0f;
+	float maxThrust = 750.0f;
 	float thrust;
 	float maxVelocity = 50.0f;
 	bool sphereCast = false; //prevents from spherecasting multiple times
@@ -93,14 +95,20 @@ public class SteamVRControls : MonoBehaviour {
 		var device = SteamVR_Controller.Input((int)trackedObj.index);
 
 		//Reading for Grip Events
-		if (joint == null && device.GetTouchDown(SteamVR_Controller.ButtonMask.Grip))
-		{
+		if (joint == null && device.GetTouchDown(SteamVR_Controller.ButtonMask.Grip)){
 			if(sphereTrigger.triggered != null){
-				sphereTrigger.triggered.transform.position = attachPoint.transform.position;
+				// THIS GRIP CONDITION IS REALLY REALLY GROSS
+				if (sphereTrigger.triggered.GetComponent<Rigidbody>().mass <= grabStrength &&
+					sphereTrigger.triggered.GetComponent<Rigidbody>().isKinematic == false &&
+					sphereTrigger.triggered.GetComponent<FixedJoint>() == false){
+					sphereTrigger.triggered.transform.position = attachPoint.transform.position;
 
-				joint = sphereTrigger.triggered.AddComponent<FixedJoint>();
-				joint.connectedBody = attachPoint;
-				HapticHandler(hapticMed);
+					joint = sphereTrigger.triggered.AddComponent<FixedJoint>();
+					joint.connectedBody = attachPoint;
+					HapticHandler(hapticMed);
+				} else {
+					HapticHandler(hapticMassive);
+				}
 			}
 		}
 		else if (joint != null && device.GetTouchUp(SteamVR_Controller.ButtonMask.Grip))
