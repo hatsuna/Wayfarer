@@ -32,20 +32,19 @@ public class bulletManager : MonoBehaviour {
 			currentTime = 0;
 			if (counter >= maxBullets){
 				maxReached = true;
-				counter = 0;
 			}
 			int currentBullet = counter % maxBullets;
 			if (recycledBullets != null && recycledBullets.Count > 0){
 				currentBullet = (int) recycledBullets.Dequeue();
-				if (bullets[currentBullet] == null){
-					bullet temp = (bullet) Instantiate(bullet, bulletHolder.transform);
-					temp.identNumber = currentBullet;
-					bullets[currentBullet] = temp;
-				}
 			} else if (!maxReached){
 				bullet temp = (bullet) Instantiate(bullet, bulletHolder.transform);
-				temp.identNumber = counter;
-				bullets[counter] = temp;
+				temp.identNumber = currentBullet;
+				bullets[currentBullet] = temp;
+			}
+			if (bullets[currentBullet] == null){
+				bullet temp = (bullet) Instantiate(bullet, bulletHolder.transform);
+				temp.identNumber = currentBullet;
+				bullets[currentBullet] = temp;
 			}
 			bullets[currentBullet].transform.position = transform.position + transform.forward;
 			bullets[currentBullet].transform.rotation = transform.rotation;

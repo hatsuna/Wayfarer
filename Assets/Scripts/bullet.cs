@@ -28,7 +28,7 @@ public class bullet : MonoBehaviour {
 
 	void OnCollisionEnter(Collision collision){
 		if (collision.relativeVelocity.magnitude >= penetrationVelocity){ // this bullet should penetrate
-			if (collision.collider.gameObject.tag == "Enemy" || collision.collider.gameObject.tag == "Player"){
+			if (collision.collider.gameObject.tag == "Enemy" || collision.collider.gameObject.tag == "Player" || collision.collider.gameObject.layer == 10){
 				// handle this case later			
 			} else{
 				transform.parent = collision.collider.gameObject.transform;

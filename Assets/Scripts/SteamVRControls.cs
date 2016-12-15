@@ -8,6 +8,9 @@ public class SteamVRControls : MonoBehaviour {
 
 	//Includes Push, Pull and Grab
 
+	float playerMass = 70;
+	bool playAreaGrav = true;
+
 	float grabStrength = 50;
 
 	//public GameObject head;
@@ -89,6 +92,7 @@ public class SteamVRControls : MonoBehaviour {
 		if (device.GetTouchDown(Valve.VR.EVRButtonId.k_EButton_Axis0)){
 			//record start position
 		}
+			
 	}
 
 	void FixedUpdate(){
@@ -101,7 +105,7 @@ public class SteamVRControls : MonoBehaviour {
 				if (sphereTrigger.triggered.GetComponent<Rigidbody>().mass <= grabStrength &&
 					sphereTrigger.triggered.GetComponent<Rigidbody>().isKinematic == false &&
 					sphereTrigger.triggered.GetComponent<FixedJoint>() == false){
-					sphereTrigger.triggered.transform.position = attachPoint.transform.position;
+					//sphereTrigger.triggered.transform.position = attachPoint.transform.position;
 
 					joint = sphereTrigger.triggered.AddComponent<FixedJoint>();
 					joint.connectedBody = attachPoint;
@@ -110,9 +114,7 @@ public class SteamVRControls : MonoBehaviour {
 					HapticHandler(hapticMassive);
 				}
 			}
-		}
-		else if (joint != null && device.GetTouchUp(SteamVR_Controller.ButtonMask.Grip))
-		{
+		} else if (joint != null && device.GetTouchUp(SteamVR_Controller.ButtonMask.Grip)){
 			HapticHandler(hapticMed);
 			var go = joint.gameObject;
 			var rigidbody = go.GetComponent<Rigidbody>();
@@ -180,15 +182,58 @@ public class SteamVRControls : MonoBehaviour {
 				if (Pull){
 					reverse = -1;
 				}
-				//cap velocity to prevent objects from going too crazy
-				//Debug.Log("this object's velocity is: " + rayHits[i].rigidbody.velocity.magnitude);
-				if (rayHits[i].rigidbody.velocity.magnitude < maxVelocity){
-					rayHits[i].rigidbody.AddForce(transform.forward * (thrust * reverse), ForceMode.Force);
-					HapticHandler(hapticLarge);
+
+				//Debug.Log("mass is " + rayHits[i].transform.parent.GetComponent<Rigidbody>().mass);
+
+				//Does the object have too much mass to push/pull?
+				if (rayHits[i].transform.parent.name != "BulletHolder" &&
+					(rayHits[i].transform.parent.GetComponent<Rigidbody>() == null  ||
+						rayHits[i].transform.parent.GetComponent<Rigidbody>().mass > playerMass)) {
+					//Apply force on the player (IF THIS PROVES TO CAUSE NAUSEA, APPLY CONSTANT VELOCITY ON PLAYER INSTEAD)
+					// Considerations:
+					// instead of using continuous velocity, apply acceleration stepwise over time as discrete changes in velocity to reduce nausea?
+					// alternatively, if only a constant velocity is used, remove the effect of gravity
+					// no matter what, player physics will probably need to be self-coded
+
+					// SHOULD WRITE A PLAY AREA PHYICS FUNCTION TO HANDLE VELOCTIY AND MOVEMENT OF PLAY AREA FOR THIS AND FOR ARMSWINGER TO USE
+					// old equation: -reverse * transform.forward.y * Time.fixedDeltaTime;
+					float tempX = -reverse * transform.forward.x * (thrust / playerMass) * Time.fixedDeltaTime;
+					float tempY = -reverse * transform.forward.y * (thrust / playerMass) * Time.fixedDeltaTime;
+					float tempZ = -reverse * transform.forward.z * (thrust / playerMass) * Time.fixedDeltaTime;
+
+
+					if (playAreaTransform.position.y <= 0 && tempY < 0 ){
+						tempY = 0;
+					}
+
+					if (tempY > 0){
+						playAreaGrav = false;
+					}					
+					//lets zero Y movement until we get gravity
+
+					playAreaTransform.position += new Vector3(tempX, tempY, tempZ); // move you in the opposite direction
+					HapticHandler(hapticMassive);
+				} else {
+					//cap velocity to prevent objects from going too crazy
+					//Debug.Log("this object's velocity is: " + rayHits[i].rigidbody.velocity.magnitude);
+					if (rayHits[i].rigidbody.velocity.magnitude < maxVelocity){
+						rayHits[i].rigidbody.AddForce(transform.forward * (thrust * reverse), ForceMode.Force);
+						HapticHandler(hapticLarge);
+					}
 				}
 			}
 		}else{
+			playAreaGrav = true;
 			laserpointer.pointer.SetActive(false);
+		}
+
+		//playAreaGravity
+		if (playAreaTransform.position.y > 0){
+			if (playAreaGrav == true){
+				playAreaTransform.position += new Vector3(0, -2 * Time.fixedDeltaTime, 0);
+			}
+		} else {
+			playAreaTransform.position.Scale(new Vector3(1, 0, 1)); // LANDING IS REALLY NAUSEATING
 		}
 
 		// reading controller arc length to interpret as walking/running movement
@@ -208,9 +253,9 @@ public class SteamVRControls : MonoBehaviour {
 			}else{
 				currentArc.x += Mathf.Abs(angVelocity.x) * Time.deltaTime;
 				if (previousArc.x == 0) {
-					tempX = transform.forward.x * (currentArc.x * Time.deltaTime);
+					tempX = transform.forward.x * (currentArc.x * Time.fixedDeltaTime);
 				} else {
-					tempX = transform.forward.x * (previousArc.x * Time.deltaTime);
+					tempX = transform.forward.x * (previousArc.x * Time.fixedDeltaTime);
 				}
 			}
 			if (angVelocity.x > 0){
@@ -224,11 +269,11 @@ public class SteamVRControls : MonoBehaviour {
 				previousArc.z = currentArc.z;
 				currentArc.z = 0;
 			} else {
-				currentArc.z += Mathf.Abs(angVelocity.z) * Time.deltaTime;
+				currentArc.z += Mathf.Abs(angVelocity.z) * Time.fixedDeltaTime;
 				if (previousArc.z == 0){
-					tempZ = transform.forward.z * (currentArc.z * Time.deltaTime);
+					tempZ = transform.forward.z * (currentArc.z * Time.fixedDeltaTime);
 				} else{
-					tempZ = transform.forward.z * (previousArc.z * Time.deltaTime);
+					tempZ = transform.forward.z * (previousArc.z * Time.fixedDeltaTime);
 				}
 			}  
 			if (angVelocity.z > 0){
