@@ -45,15 +45,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\Scripts\AIController.cs" />
-     <Compile Include="Assets\Scripts\ControllerStateManager.cs" />
-     <Compile Include="Assets\Scripts\GameManager.cs" />
-     <Compile Include="Assets\Scripts\GrabAndThrow.cs" />
      <Compile Include="Assets\Scripts\HitDetect.cs" />
-     <Compile Include="Assets\Scripts\HitDetection.cs" />
      <Compile Include="Assets\Scripts\Metal.cs" />
-     <Compile Include="Assets\Scripts\PickupObject.cs" />
-     <Compile Include="Assets\Scripts\PlayerControl.cs" />
      <Compile Include="Assets\Scripts\SphereTrigger.cs" />
      <Compile Include="Assets\Scripts\SteamVRControls.cs" />
      <Compile Include="Assets\Scripts\ToggleVR.cs" />

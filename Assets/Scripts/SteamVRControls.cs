@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 [RequireComponent(typeof(SteamVR_TrackedObject))]
 public class SteamVRControls : MonoBehaviour {
@@ -34,7 +35,8 @@ public class SteamVRControls : MonoBehaviour {
 
 	public Rigidbody attachPoint;
 	public SphereTrigger sphereTrigger;
-	FixedJoint joint;
+	//FixedJoint joint;
+	Queue<FixedJoint> jointList;
 
 	ushort hapticLength = 0;
 	ushort hapticMassive = 2048;
@@ -47,6 +49,7 @@ public class SteamVRControls : MonoBehaviour {
 		playAreaTransform = FindObjectOfType<SteamVR_PlayArea>().transform;
 		trackedObj = GetComponent<SteamVR_TrackedObject>();
 		laserpointer = GetComponent<SteamVR_LaserPointer>();
+		jointList = new Queue<FixedJoint>();
 	}
 
 	void OnSceneGUI(){
@@ -99,9 +102,27 @@ public class SteamVRControls : MonoBehaviour {
 		var device = SteamVR_Controller.Input((int)trackedObj.index);
 
 		//Reading for Grip Events
-		if (joint == null && device.GetTouchDown(SteamVR_Controller.ButtonMask.Grip)){
-			if(sphereTrigger.triggered != null){
-				// THIS GRIP CONDITION IS REALLY REALLY GROSS
+		if (jointList.Count == 0 && device.GetTouchDown(SteamVR_Controller.ButtonMask.Grip)){
+			if(sphereTrigger.activeTriggers.Count > 0){
+				sphereTrigger.activeTriggers.ForEach(delegate(GameObject trigger){
+					Debug.Log(trigger.name);
+					// THIS GRIP CONDITION IS REALLY REALLY GROSS
+					if (trigger.GetComponent<Rigidbody>().mass <= grabStrength &&
+						trigger.GetComponent<Rigidbody>().isKinematic == false &&
+						trigger.GetComponent<FixedJoint>() == false){
+
+						//sphereTrigger.triggered.transform.position = attachPoint.transform.position; // THIS attaches at the fixed point
+						FixedJoint joint = trigger.AddComponent<FixedJoint>();
+						joint.connectedBody = attachPoint;
+						jointList.Enqueue(joint);
+						HapticHandler(hapticMed);
+					} else {
+						HapticHandler(hapticMassive); 
+					}
+				});
+			}
+			/*if(sphereTrigger.triggered != null){ // old triggered code
+
 				if (sphereTrigger.triggered.GetComponent<Rigidbody>().mass <= grabStrength &&
 					sphereTrigger.triggered.GetComponent<Rigidbody>().isKinematic == false &&
 					sphereTrigger.triggered.GetComponent<FixedJoint>() == false){
@@ -113,33 +134,36 @@ public class SteamVRControls : MonoBehaviour {
 				} else {
 					HapticHandler(hapticMassive);
 				}
-			}
-		} else if (joint != null && device.GetTouchUp(SteamVR_Controller.ButtonMask.Grip)){
+			}*/
+		} else if (jointList.Count > 0 && device.GetTouchUp(SteamVR_Controller.ButtonMask.Grip)){
 			HapticHandler(hapticMed);
-			var go = joint.gameObject;
-			var rigidbody = go.GetComponent<Rigidbody>();
-			Object.DestroyImmediate(joint);
-			joint = null;
-			//Object.Destroy(go, 15.0f);
+			while(jointList.Count > 0){
+				FixedJoint joint = jointList.Dequeue();
+				var go = joint.gameObject;
+				var rigidbody = go.GetComponent<Rigidbody>();
+				Object.DestroyImmediate(joint);
+				joint = null;
+				//Object.Destroy(go, 15.0f);
 
-			// We should probably apply the offset between trackedObj.transform.position
-			// and device.transform.pos to insert into the physics sim at the correct
-			// location, however, we would then want to predict ahead the visual representation
-			// by the same amount we are predicting our render poses.
+				// We should probably apply the offset between trackedObj.transform.position
+				// and device.transform.pos to insert into the physics sim at the correct
+				// location, however, we would then want to predict ahead the visual representation
+				// by the same amount we are predicting our render poses.
 
-			var origin = trackedObj.origin ? trackedObj.origin : trackedObj.transform.parent;
-			if (origin != null)
-			{
-				rigidbody.velocity = origin.TransformVector(device.velocity);
-				rigidbody.angularVelocity = origin.TransformVector(device.angularVelocity);
+				var origin = trackedObj.origin ? trackedObj.origin : trackedObj.transform.parent;
+				if (origin != null)
+				{
+					rigidbody.velocity = origin.TransformVector(device.velocity);
+					rigidbody.angularVelocity = origin.TransformVector(device.angularVelocity);
+				}
+				else
+				{
+					rigidbody.velocity = device.velocity;
+					rigidbody.angularVelocity = device.angularVelocity;
+				}
+
+				rigidbody.maxAngularVelocity = rigidbody.angularVelocity.magnitude;
 			}
-			else
-			{
-				rigidbody.velocity = device.velocity;
-				rigidbody.angularVelocity = device.angularVelocity;
-			}
-
-			rigidbody.maxAngularVelocity = rigidbody.angularVelocity.magnitude;
 		}
 
 		//Reading for Push/Pull Events

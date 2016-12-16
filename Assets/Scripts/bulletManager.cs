@@ -8,7 +8,7 @@ public class bulletManager : MonoBehaviour {
 	bullet[] bullets;
 	Queue recycledBullets;
 	bool maxReached = false;
-	int maxBullets = 5;
+	int maxBullets = 10;
 	int counter = 0;
 	float frequency = 5.0f;
 	float currentTime = 0.0f;
