@@ -6,7 +6,7 @@ public class Metal : MonoBehaviour {
 	public Transform headCamera; //Set to headCamera so that lines are always drawn to player's chest
 	LineRenderer linerender;
 	float chestHeight = 0.75f; //Set at start as chest height as percent of body height, will change to actual height during runtime
-	float drawDistance = 100; //Set to maximum distance away from player lines can be drawn
+	float drawDistance = 50; //Set to maximum distance away from player lines can be drawn
 	Transform playAreaTransform;
 
 	// Use this for initialization

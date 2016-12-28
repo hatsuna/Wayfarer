@@ -7,6 +7,7 @@ public class bullet : MonoBehaviour {
 	public bulletManager manager;
 
 	float penetrationVelocity = 50.0f;
+	float penetrationImpulse = 1.0f;
 
 	void Start() {
 		manager = FindObjectOfType<bulletManager>();
@@ -26,11 +27,17 @@ public class bullet : MonoBehaviour {
 		}
 	}
 
-	void OnCollisionEnter(Collision collision){
-		if (collision.relativeVelocity.magnitude >= penetrationVelocity){ // this bullet should penetrate
-			if (collision.collider.gameObject.tag == "Enemy" || collision.collider.gameObject.tag == "Player" || collision.collider.gameObject.layer == 10){
-				// handle this case later			
-			} else{
+	void OnCollisionStay(Collision collision){
+		if (collision.impulse.magnitude >= penetrationImpulse){
+			Debug.Log("impulse = " + collision.impulse.magnitude);
+		//if (collision.relativeVelocity.magnitude >= penetrationVelocity){ // this bullet should penetrate
+			if (collision.collider.gameObject.tag == "Enemy"){
+				// delete the bullet
+				manager.recycleBullet(this);
+				Destroy(gameObject);
+			} else if (collision.collider.gameObject.tag == "Player" || collision.collider.gameObject.layer == 10){
+				// handle this case later
+			} else {
 				transform.parent = collision.collider.gameObject.transform;
 				if (collision.collider.gameObject.GetComponent<Rigidbody>() != null){
 					gameObject.AddComponent<FixedJoint>().connectedBody = collision.collider.gameObject.GetComponent<Rigidbody>();
@@ -42,6 +49,5 @@ public class bullet : MonoBehaviour {
 				Destroy(gameObject.GetComponent<bullet>());
 			}
 		}
-
 	}
 }

@@ -16,7 +16,7 @@ public class SphereTrigger : MonoBehaviour {
 	void OnTriggerEnter (Collider activator){
 		if(activator.gameObject.GetComponent<Rigidbody>() != null){
 			//triggered = activator.gameObject;
-			Debug.Log(activator.gameObject.name + " has entered TriggerSphere");
+			//Debug.Log(activator.gameObject.name + " has entered TriggerSphere");
 			activeTriggers.Add(activator.gameObject);
 		}
 		/*if(activator.gameObject.layer == 8){ //Metal Layer
@@ -25,7 +25,7 @@ public class SphereTrigger : MonoBehaviour {
 	}
 
 	void OnTriggerExit (Collider deactivated){
-		Debug.Log(deactivated.gameObject.name + " has left TriggerSPhere");
+		//Debug.Log(deactivated.gameObject.name + " has left TriggerSPhere");
 		/*if(deactivated.gameObject == triggered){
 			triggered = null;
 		}*/

@@ -45,6 +45,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Scripts\GrabbedCollisionCheck.cs" />
      <Compile Include="Assets\Scripts\HitDetect.cs" />
      <Compile Include="Assets\Scripts\Metal.cs" />
      <Compile Include="Assets\Scripts\SphereTrigger.cs" />
