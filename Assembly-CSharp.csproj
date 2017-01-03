@@ -45,14 +45,15 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Scripts\GrabTrigger.cs" />
      <Compile Include="Assets\Scripts\GrabbedCollisionCheck.cs" />
      <Compile Include="Assets\Scripts\HitDetect.cs" />
      <Compile Include="Assets\Scripts\Metal.cs" />
-     <Compile Include="Assets\Scripts\SphereTrigger.cs" />
      <Compile Include="Assets\Scripts\SteamVRControls.cs" />
      <Compile Include="Assets\Scripts\ToggleVR.cs" />
      <Compile Include="Assets\Scripts\bullet.cs" />
      <Compile Include="Assets\Scripts\bulletManager.cs" />
+     <Compile Include="Assets\Scripts\handCollision.cs" />
      <Compile Include="Assets\Scripts\targetMove.cs" />
      <Compile Include="Assets\SteamVR\Extras\SteamVR_GazeTracker.cs" />
      <Compile Include="Assets\SteamVR\Extras\SteamVR_LaserPointer.cs" />

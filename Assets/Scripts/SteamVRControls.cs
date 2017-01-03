@@ -9,11 +9,10 @@ public class SteamVRControls : MonoBehaviour {
 
 	//Includes Push, Pull and Grab
 
-	float playerMass = 70;
+	public float playerMass = 70;
 	bool playAreaGrav = true;
 
-	float grabStrength = 50;
-	float jointStrength = 5.0f;
+	float jointStrength = 15.0f;
 
 	//public GameObject head;
 	float minThrust = 0.0f;
@@ -36,7 +35,7 @@ public class SteamVRControls : MonoBehaviour {
 	SteamVR_LaserPointer laserpointer;
 
 	public Rigidbody attachPoint;
-	public SphereTrigger sphereTrigger;
+	public GrabTrigger GrabTrigger;
 	//FixedJoint joint;
 	Queue<FixedJoint> jointList;
 
@@ -104,8 +103,6 @@ public class SteamVRControls : MonoBehaviour {
 		else if (right hand & counter clockwise) || (left hand & clockwise)
 			decrease * distance from center
 		*/
-
-
 		Vector2 touchPad = device.GetAxis(Valve.VR.EVRButtonId.k_EButton_Axis1);
 		if (touchPad.x != 0 && touchPad.y != 0){
 
@@ -119,34 +116,35 @@ public class SteamVRControls : MonoBehaviour {
 
 		//Reading for Grip Events
 		if (jointList.Count == 0 && device.GetTouchDown(SteamVR_Controller.ButtonMask.Grip)){
-			if(sphereTrigger.activeTriggers.Count > 0){
+			if(GrabTrigger.activeTriggers.Count > 0){
 				//turn off hand colliders
-				SetHandColliders(false);
-				sphereTrigger.activeTriggers.ForEach(delegate(GameObject trigger){
+				//SetHandColliders(false);
+				GrabTrigger.activeTriggers.ForEach(delegate(GameObject trigger){
 					// THIS GRIP CONDITION IS REALLY REALLY GROSS
-					if (trigger.GetComponent<Rigidbody>().mass <= grabStrength &&
+					if (trigger.GetComponent<Rigidbody>().mass <= playerMass &&
 						trigger.GetComponent<Rigidbody>().isKinematic == false &&
 						trigger.GetComponent<FixedJoint>() == false){
 
-						//sphereTrigger.triggered.transform.position = attachPoint.transform.position; // THIS attaches at the fixed point
+						//GrabTrigger.triggered.transform.position = attachPoint.transform.position; // THIS attaches at the fixed point
 						FixedJoint joint = trigger.AddComponent<FixedJoint>();
 						joint.connectedBody = attachPoint;
 						jointList.Enqueue(joint);
 						trigger.AddComponent<GrabbedCollisionCheck>().springThreshold = jointStrength;
+						trigger.GetComponent<GrabbedCollisionCheck>().charMass = playerMass;
 						HapticHandler(hapticMed);
 					} else {
 						HapticHandler(hapticMassive); 
 					}
 				});
 			}
-			/*if(sphereTrigger.triggered != null){ // old triggered code
+			/*if(GrabTrigger.triggered != null){ // old triggered code
 
-				if (sphereTrigger.triggered.GetComponent<Rigidbody>().mass <= grabStrength &&
-					sphereTrigger.triggered.GetComponent<Rigidbody>().isKinematic == false &&
-					sphereTrigger.triggered.GetComponent<FixedJoint>() == false){
-					//sphereTrigger.triggered.transform.position = attachPoint.transform.position;
+				if (GrabTrigger.triggered.GetComponent<Rigidbody>().mass <= playerMass &&
+					GrabTrigger.triggered.GetComponent<Rigidbody>().isKinematic == false &&
+					GrabTrigger.triggered.GetComponent<FixedJoint>() == false){
+					//GrabTrigger.triggered.transform.position = attachPoint.transform.position;
 
-					joint = sphereTrigger.triggered.AddComponent<FixedJoint>();
+					joint = GrabTrigger.triggered.AddComponent<FixedJoint>();
 					joint.connectedBody = attachPoint;
 					HapticHandler(hapticMed);
 				} else {
@@ -157,32 +155,32 @@ public class SteamVRControls : MonoBehaviour {
 			HapticHandler(hapticMed);
 			while(jointList.Count > 0){
 				FixedJoint joint = jointList.Dequeue();
-				var go = joint.gameObject;
-				var rigidbody = go.GetComponent<Rigidbody>();
-				Object.DestroyImmediate(joint);
-				joint = null;
-				//Object.Destroy(go, 15.0f);
-
-				// We should probably apply the offset between trackedObj.transform.position
-				// and device.transform.pos to insert into the physics sim at the correct
-				// location, however, we would then want to predict ahead the visual representation
-				// by the same amount we are predicting our render poses.
-
-				var origin = trackedObj.origin ? trackedObj.origin : trackedObj.transform.parent;
-				if (origin != null)
-				{
-					rigidbody.velocity = origin.TransformVector(device.velocity);
-					rigidbody.angularVelocity = origin.TransformVector(device.angularVelocity);
+				if (joint != null){
+					var go = joint.gameObject;
+					var rigidbody = go.GetComponent<Rigidbody>();
+					Object.DestroyImmediate(joint);
+					joint = null;
+					//Object.Destroy(go, 15.0f);
+					Destroy(go.GetComponent<GrabbedCollisionCheck>());
+					// We should probably apply the offset between trackedObj.transform.position
+						// and device.transform.pos to insert into the physics sim at the correct
+						// location, however, we would then want to predict ahead the visual representation
+						// by the same amount we are predicting our render poses.
+					var origin = trackedObj.origin ? trackedObj.origin : trackedObj.transform.parent;
+					if (origin != null)
+					{
+						rigidbody.velocity = origin.TransformVector(device.velocity);
+						rigidbody.angularVelocity = origin.TransformVector(device.angularVelocity);
+					}
+					else
+					{
+						rigidbody.velocity = device.velocity;
+						rigidbody.angularVelocity = device.angularVelocity;
+					}
+					rigidbody.maxAngularVelocity = rigidbody.angularVelocity.magnitude;
 				}
-				else
-				{
-					rigidbody.velocity = device.velocity;
-					rigidbody.angularVelocity = device.angularVelocity;
-				}
-
-				rigidbody.maxAngularVelocity = rigidbody.angularVelocity.magnitude;
 			}
-			SetHandColliders(true);
+			//SetHandColliders(true);
 		}
 
 		//Reading for Push/Pull Events
@@ -333,7 +331,7 @@ public class SteamVRControls : MonoBehaviour {
 		}
 	}
 
-	void OnCollisionEnter(Collision collision){
+	/*void OnCollisionEnter(Collision collision){
 		Debug.Log(gameObject.name + " collided with " + collision.collider.gameObject.name);
 
 		if(collision.rigidbody.mass > playerMass){
@@ -346,7 +344,7 @@ public class SteamVRControls : MonoBehaviour {
 		if(collision.rigidbody.mass > playerMass){
 			SetHandColliders(true);
 		}
-	}
+	}*/
 
 	void LateUpdate(){
 		var device = SteamVR_Controller.Input((int)trackedObj.index);

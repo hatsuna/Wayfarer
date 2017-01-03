@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class SphereTrigger : MonoBehaviour {
+public class GrabTrigger : MonoBehaviour {
 
 	//public GameObject triggered;
 
@@ -18,6 +18,7 @@ public class SphereTrigger : MonoBehaviour {
 			//triggered = activator.gameObject;
 			//Debug.Log(activator.gameObject.name + " has entered TriggerSphere");
 			activeTriggers.Add(activator.gameObject);
+			activator.gameObject.GetComponent<Rigidbody>().collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
 		}
 		/*if(activator.gameObject.layer == 8){ //Metal Layer
 			triggered = activator.gameObject;
@@ -30,5 +31,8 @@ public class SphereTrigger : MonoBehaviour {
 			triggered = null;
 		}*/
 		activeTriggers.Remove(deactivated.gameObject);
+		if (deactivated.gameObject.layer != 8){
+			deactivated.gameObject.GetComponent<Rigidbody>().collisionDetectionMode = CollisionDetectionMode.Discrete;
+		}
 	}
 }
