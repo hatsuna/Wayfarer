@@ -14,7 +14,7 @@ public class targetMove : MonoBehaviour {
 
 	// Update is called once per frame
 	void FixedUpdate () {
-		rbody.velocity = transform.right * movespeed + Physics.gravity;
+		//rbody.velocity = transform.right * movespeed + Physics.gravity;
 		/*Ray moveRay = new Ray(transform.position, transform.right);
 		if(Physics.SphereCast(moveRay, 0.5f, 3f)){
 			float rand = Random.value;

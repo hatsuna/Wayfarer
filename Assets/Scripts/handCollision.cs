@@ -32,15 +32,17 @@ public class handCollision : MonoBehaviour {
 	}
 
 	void FixedUpdate(){
-		/*if(activeObjects.Count != 0){
+		if(activeObjects.Count != 0){
 			foreach (GameObject x in activeObjects){
 				Rigidbody rigidbody = x.GetComponent<Rigidbody>();
 				float massRatio = charMass / rigidbody.mass;
 				if (!isSmallObject(x)){
-					rigidbody.AddForce((transform.position + x.transform.position) * massRatio * pushForce, ForceMode.Force);
+					rigidbody.AddForce(
+						new Vector3(transform.position.x + x.transform.position.x, 0, transform.position.z + x.transform.position.z)
+						* massRatio * pushForce, ForceMode.Force);
 				}
 			}
-		}*/
+		}
 	}
 
 	bool freeOfLargeObjects(List<GameObject> objects){

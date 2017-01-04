@@ -22,15 +22,20 @@ public class GrabbedCollisionCheck : MonoBehaviour {
 	}
 
 	void OnCollisionEnter(Collision collision){
-		//Debug.Log(gameObject.name + " collided with " + collision.collider.gameObject.name);
+		// Currently breaks joints when colliding with level-bounds geometry
+		// Could instead turn off collision with level-bounds geometry for as long as its held
+		// by checking the collision.rigidbody ==/!= null statements
 
-		if((springThreshold == null || collision.impulse.magnitude < springThreshold) && (collision.rigidbody.mass < charMass)){
+		if(collision.gameObject.tag == "Player" || collision.gameObject.GetComponent<GrabbedCollisionCheck>() != null){
+			// do nothing atm
+
+		}else if((springThreshold == null || collision.impulse.magnitude < springThreshold) && (collision.rigidbody != null && collision.rigidbody.mass < charMass)){
 			SpringJointEnabled = true;
 			//Debug.Log("SpringJoint is Enabled");
 
-		} else if (collision.impulse.magnitude >= springThreshold || collision.rigidbody.mass >= charMass){
+		} else if (collision.impulse.magnitude >= springThreshold || collision.rigidbody == null || collision.rigidbody.mass >= charMass){
 			SpringJointEnabled = false;
-			Debug.Log("Joint Break at " + collision.impulse.magnitude + " impulse force");
+			//Debug.Log("Joint Break at " + collision.impulse.magnitude + " impulse force");
 			Destroy(gameObject.GetComponent<FixedJoint>());
 			Destroy(this);
 		}

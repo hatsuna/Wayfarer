@@ -28,6 +28,9 @@ public class SteamVRControls : MonoBehaviour {
 	public GameObject powerStrengthText;
 	Vector2 prevFrameTouchCoord;
 
+	public bool touchPadOverride = false;
+	public float touchPadValue = 0;
+
 	Vector3 angularVshift = Vector3.zero; //1, 0, or -1
 	Vector3 previousArc = Vector3.zero;
 	Vector3 currentArc = Vector3.zero;
@@ -67,13 +70,21 @@ public class SteamVRControls : MonoBehaviour {
 			float xaxis = device.GetAxis (Valve.VR.EVRButtonId.k_EButton_SteamVR_Touchpad).x;
 			if ( yaxis > 0.0f && yaxis >= Mathf.Abs(xaxis)) {
 				//Debug.Log ("Dpad Up");
-				if (laserpointer.thickness < 1.0f){
-					laserpointer.thickness += 0.1f;
+				if(touchPadOverride){
+					touchPadValue = 1;
+				} else{
+					if (laserpointer.thickness < 1.0f){
+						laserpointer.thickness += 0.1f;
+					}
 				}
 			} else if ( yaxis < 0.0f && yaxis <= -Mathf.Abs(xaxis)) {	
 				//Debug.Log ("Dpad Down");
-				if (laserpointer.thickness > 0.1f){
-					laserpointer.thickness -= 0.1f;
+				if(touchPadOverride){
+					touchPadValue = -1;
+				} else{
+					if (laserpointer.thickness > 0.1f){
+						laserpointer.thickness -= 0.1f;
+					}
 				}
 			} else if ( xaxis > 0.0f  && !stateShift){
 				//Debug.Log ("Dpad Right");
@@ -120,11 +131,15 @@ public class SteamVRControls : MonoBehaviour {
 				//turn off hand colliders
 				//SetHandColliders(false);
 				GrabTrigger.activeTriggers.ForEach(delegate(GameObject trigger){
+					Debug.Log(trigger.name + "is still an active trigger");
 					// THIS GRIP CONDITION IS REALLY REALLY GROSS
-					if (trigger.GetComponent<Rigidbody>().mass <= playerMass &&
-						trigger.GetComponent<Rigidbody>().isKinematic == false &&
+					Rigidbody rbody = trigger.GetComponent<Rigidbody>();
+					if (rbody.mass <= playerMass &&	rbody.isKinematic == false && 
 						trigger.GetComponent<FixedJoint>() == false){
 
+						if(rbody.constraints != RigidbodyConstraints.None){
+							rbody.constraints = RigidbodyConstraints.None;
+						}
 						//GrabTrigger.triggered.transform.position = attachPoint.transform.position; // THIS attaches at the fixed point
 						FixedJoint joint = trigger.AddComponent<FixedJoint>();
 						joint.connectedBody = attachPoint;
@@ -205,13 +220,10 @@ public class SteamVRControls : MonoBehaviour {
 			powerStrengthText.GetComponent<TextMesh>().text = (thrust).ToString();
 			hapticVar = (ushort) Mathf.Lerp((float)hapticSmall, (float)hapticMed, (thrust / maxThrust));
 			HapticHandler(hapticVar);
+			sphereCast = false;
 			if(device.GetAxis(Valve.VR.EVRButtonId.k_EButton_SteamVR_Trigger).x == 1.0f){ //if trigger is fully depressed, spherecast
-				//if (!sphereCast){ // enable this if spherecast all is becoming too expensive can make a coroutine to lower costs
-					sphereCast = true;
-					rayHits = Physics.SphereCastAll(ray, laserpointer.thickness, 100f, layerMask);
-				//}
+				rayHits = Physics.SphereCastAll(ray, laserpointer.thickness, 100f, layerMask);
 			}else{
-				sphereCast = false; // trigger is no longer fully depressed
 				if(Physics.SphereCast(ray, laserpointer.thickness, out hit, 100f, layerMask)){
 					rayHits = new RaycastHit[1];
 					rayHits[0] = hit;
@@ -227,7 +239,7 @@ public class SteamVRControls : MonoBehaviour {
 				//Debug.Log("mass is " + rayHits[i].transform.parent.GetComponent<Rigidbody>().mass);
 
 				//Does the object have too much mass to push/pull?
-				if (rayHits[i].transform.parent.name != "BulletHolder" &&
+				if (!sphereCast && rayHits[i].transform.parent.name != "BulletHolder" &&
 					(rayHits[i].transform.parent.GetComponent<Rigidbody>() == null  ||
 						rayHits[i].transform.parent.GetComponent<Rigidbody>().mass > playerMass)) {
 					//Apply force on the player (IF THIS PROVES TO CAUSE NAUSEA, APPLY CONSTANT VELOCITY ON PLAYER INSTEAD)
@@ -253,6 +265,7 @@ public class SteamVRControls : MonoBehaviour {
 					//lets zero Y movement until we get gravity
 
 					playAreaTransform.position += new Vector3(tempX, tempY, tempZ); // move you in the opposite direction
+					sphereCast = true; //allows this function to only be called by one object
 					HapticHandler(hapticMassive);
 				} else {
 					//cap velocity to prevent objects from going too crazy
