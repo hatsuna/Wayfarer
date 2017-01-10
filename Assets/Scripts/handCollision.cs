@@ -7,6 +7,7 @@ public class handCollision : MonoBehaviour {
 	float charMass;
 	float pushForce = 10.0f;
 	public SteamVRControls linkedController;
+	bool handCollidersActive;
 	public Collider handCollider;
 	List<GameObject> activeObjects;
 	//List<GameObject> activeObjects;
@@ -20,8 +21,10 @@ public class handCollision : MonoBehaviour {
 		handCollider.isTrigger = false;
 	}
 
-	void Update(){
+	void FixedUpdate(){
 		charMass = linkedController.playerMass;
+		handCollidersActive = linkedController.handCollidersActive;
+
 		if(handCollider.isTrigger && (activeObjects.Count == 0 || freeOfLargeObjects(activeObjects))){
 			handCollider.isTrigger = false;
 			//Debug.Log("hand is collider");
@@ -29,20 +32,25 @@ public class handCollision : MonoBehaviour {
 			handCollider.isTrigger = true;
 			//Debug.Log("hand is trigger");
 		}
-	}
 
-	void FixedUpdate(){
+		if(!handCollider.isTrigger && !handCollidersActive){ //if not a trigger (regular collider) but colliders supposed to off, turn them off
+			handCollider.enabled = false;
+		} else { // either is a trigger (should be enabled) or hand colliders are supposed to be on and they are on
+			handCollider.enabled = true;
+		}
+
+		/* Gentle Push when colliding
 		if(activeObjects.Count != 0){
 			foreach (GameObject x in activeObjects){
 				Rigidbody rigidbody = x.GetComponent<Rigidbody>();
-				float massRatio = charMass / rigidbody.mass;
+				float forceModifier = (charMass / rigidbody.mass) * pushForce;
 				if (!isSmallObject(x)){
-					rigidbody.AddForce(
-						new Vector3(transform.position.x + x.transform.position.x, 0, transform.position.z + x.transform.position.z)
-						* massRatio * pushForce, ForceMode.Force);
+					rigidbody.AddForce(new Vector3(
+						(transform.position.x + x.transform.position.x) * forceModifier, 0, 
+						(transform.position.z + x.transform.position.z) * forceModifier), ForceMode.Force);
 				}
 			}
-		}
+		}*/
 	}
 
 	bool freeOfLargeObjects(List<GameObject> objects){

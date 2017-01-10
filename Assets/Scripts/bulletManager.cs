@@ -17,7 +17,7 @@ public class bulletManager : MonoBehaviour {
 	SteamVRControls activated;
 
 	Transform headCamera;
-	//Transform playAreaTransform;
+	Transform playAreaTransform;
 	float waistHeight = 0.5f;
 
 	// Called even when script is disabled
@@ -28,7 +28,7 @@ public class bulletManager : MonoBehaviour {
 		bulletStack = new Stack();
 
 		if(tag == "Player"){
-			//playAreaTransform = FindObjectOfType<SteamVR_PlayArea>().transform;
+			playAreaTransform = FindObjectOfType<SteamVR_PlayArea>().transform;
 			headCamera = Camera.main.transform;
 		}
 		if(tag == "Enemy"){
@@ -52,28 +52,39 @@ public class bulletManager : MonoBehaviour {
 				newBullet.GetComponent<Rigidbody>().AddForce(transform.forward * force, ForceMode.Force);
 			}
 		} if(tag == "Player"){
-			transform.position = new Vector3(headCamera.position.x, headCamera.position.y * waistHeight, headCamera.position.z);
+			transform.position = new Vector3(headCamera.position.x, 
+				((headCamera.position.y - playAreaTransform.position.y) * waistHeight) + playAreaTransform.position.y,
+				headCamera.position.z);
 		}
 		if(activated != null){
 			float touchPad = activated.touchPadValue;
 			if(touchPad > 0 && bulletStack.Count < maxBullets){
 				GameObject stackBullet = createBullet();
-				stackBullet.transform.SetParent(activated.transform);
-				float posMod = stackBullet.GetComponent<BoxCollider>().size.y * bulletStack.Count;
+				stackBullet.transform.SetParent(transform);
+				float posMod = stackBullet.GetComponent<BoxCollider>().size.y;
 				Vector3 colliderHalfSize = GetComponent<Collider>().bounds.extents;
-				stackBullet.transform.position = new Vector3(
-					activated.attachPoint.transform.position.x,
-					activated.attachPoint.transform.position.y - colliderHalfSize.y + posMod + 0.1f,
-					activated.attachPoint.transform.position.z);
-				//stackBullet.transform.eulerAngles = transform.eulerAngles;
+				stackBullet.transform.eulerAngles = new Vector3(0, 0, 90);
+				if (bulletStack.Count == 0){
+					stackBullet.transform.position = activated.attachPoint.transform.position;
+				} else {
+					Vector3 prevBullet = ((GameObject)bulletStack.Peek()).transform.position;
+					stackBullet.transform.position = new Vector3(
+						prevBullet.x + posMod,
+						prevBullet.y,
+						prevBullet.z);
+				}
+
 				Rigidbody rigidbody = stackBullet.GetComponent<Rigidbody>();
-				rigidbody.constraints = RigidbodyConstraints.FreezeAll;
+				rigidbody.constraints = RigidbodyConstraints.FreezePosition;
 				bulletStack.Push(stackBullet);
 				activated.touchPadValue = 0;
 			}else if(touchPad < 0 && bulletStack.Count > 0){
 				((GameObject)bulletStack.Peek()).SetActive(false);
 				recycleBullet(((GameObject)bulletStack.Pop()).GetComponent<bullet>());
 				activated.touchPadValue = 0;
+			}
+			if(activated.triggerExit){
+				deactivateTrigger();
 			}
 		} else{
 			while(bulletStack.Count > 0){
@@ -121,6 +132,12 @@ public class bulletManager : MonoBehaviour {
 
 	void OnTriggerExit(Collider deactivator){
 		if(deactivator.gameObject.tag == "Player"){
+			deactivateTrigger();
+		}
+	}
+
+	void deactivateTrigger(){
+		if(activated != null){
 			activated.touchPadOverride = false;
 			activated = null;
 		}

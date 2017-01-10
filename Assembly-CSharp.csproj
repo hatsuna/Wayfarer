@@ -49,6 +49,7 @@
      <Compile Include="Assets\Scripts\GrabbedCollisionCheck.cs" />
      <Compile Include="Assets\Scripts\HitDetect.cs" />
      <Compile Include="Assets\Scripts\Metal.cs" />
+     <Compile Include="Assets\Scripts\PlayAreaPhysics.cs" />
      <Compile Include="Assets\Scripts\SteamVRControls.cs" />
      <Compile Include="Assets\Scripts\ToggleVR.cs" />
      <Compile Include="Assets\Scripts\bullet.cs" />

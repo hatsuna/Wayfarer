@@ -13,6 +13,11 @@ public class SteamVRControls : MonoBehaviour {
 	bool playAreaGrav = true;
 
 	float jointStrength = 15.0f;
+	public bool handCollidersActive = true; // call exitTriggerCheck afterwards if changing
+
+	public bool triggerExit = false;
+	public bool touchPadOverride = false; //signifying that the hand is inside a trigger
+	public float touchPadValue = 0;
 
 	//public GameObject head;
 	float minThrust = 0.0f;
@@ -20,6 +25,7 @@ public class SteamVRControls : MonoBehaviour {
 	float thrust;
 	float maxVelocity = 50.0f;
 	bool sphereCast = false; //prevents from spherecasting multiple times
+	float range = 50.0f;
 
 	SteamVR_TrackedObject trackedObj;
 	bool Pull = true; // true = pull, false = push
@@ -27,9 +33,6 @@ public class SteamVRControls : MonoBehaviour {
 	public GameObject handText;
 	public GameObject powerStrengthText;
 	Vector2 prevFrameTouchCoord;
-
-	public bool touchPadOverride = false;
-	public float touchPadValue = 0;
 
 	Vector3 angularVshift = Vector3.zero; //1, 0, or -1
 	Vector3 previousArc = Vector3.zero;
@@ -129,9 +132,10 @@ public class SteamVRControls : MonoBehaviour {
 		if (jointList.Count == 0 && device.GetTouchDown(SteamVR_Controller.ButtonMask.Grip)){
 			if(GrabTrigger.activeTriggers.Count > 0){
 				//turn off hand colliders
-				//SetHandColliders(false);
+				handCollidersActive = false;
+				exitTriggerCheck();
 				GrabTrigger.activeTriggers.ForEach(delegate(GameObject trigger){
-					Debug.Log(trigger.name + "is still an active trigger");
+					//Debug.Log(trigger.name + "is still an active trigger");
 					// THIS GRIP CONDITION IS REALLY REALLY GROSS
 					Rigidbody rbody = trigger.GetComponent<Rigidbody>();
 					if (rbody.mass <= playerMass &&	rbody.isKinematic == false && 
@@ -148,7 +152,7 @@ public class SteamVRControls : MonoBehaviour {
 						trigger.GetComponent<GrabbedCollisionCheck>().charMass = playerMass;
 						HapticHandler(hapticMed);
 					} else {
-						HapticHandler(hapticMassive); 
+						HapticHandler(hapticLarge); 
 					}
 				});
 			}
@@ -195,7 +199,7 @@ public class SteamVRControls : MonoBehaviour {
 					rigidbody.maxAngularVelocity = rigidbody.angularVelocity.magnitude;
 				}
 			}
-			//SetHandColliders(true);
+			handCollidersActive = true;
 		}
 
 		//Reading for Push/Pull Events
@@ -222,9 +226,9 @@ public class SteamVRControls : MonoBehaviour {
 			HapticHandler(hapticVar);
 			sphereCast = false;
 			if(device.GetAxis(Valve.VR.EVRButtonId.k_EButton_SteamVR_Trigger).x == 1.0f){ //if trigger is fully depressed, spherecast
-				rayHits = Physics.SphereCastAll(ray, laserpointer.thickness, 100f, layerMask);
+				rayHits = Physics.SphereCastAll(ray, laserpointer.thickness, range, layerMask);
 			}else{
-				if(Physics.SphereCast(ray, laserpointer.thickness, out hit, 100f, layerMask)){
+				if(Physics.SphereCast(ray, laserpointer.thickness, out hit, range, layerMask)){
 					rayHits = new RaycastHit[1];
 					rayHits[0] = hit;
 				}
@@ -371,14 +375,11 @@ public class SteamVRControls : MonoBehaviour {
 		}
 	}
 
-	void SetHandColliders(bool enabled){
-		Collider[] handColliders = GetComponentsInChildren<Collider>();
-		foreach (Collider x in handColliders){
-			if(enabled && x.isTrigger == false){
-				x.enabled = true;
-			} else if (!enabled && x.isTrigger == false){
-				x.enabled = false;
-			}
+	void exitTriggerCheck(){
+		if(touchPadOverride && !handCollidersActive){
+			triggerExit = true;
+		} else {
+			triggerExit = false;
 		}
 	}
 }

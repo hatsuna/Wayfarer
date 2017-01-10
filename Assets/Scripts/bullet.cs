@@ -28,8 +28,8 @@ public class bullet : MonoBehaviour {
 	}
 
 	void OnCollisionStay(Collision collision){
-		if (collision.impulse.magnitude >= penetrationImpulse){
-			Debug.Log("impulse = " + collision.impulse.magnitude);
+		if (gameObject.GetComponent<FixedJoint>() == null && collision.impulse.magnitude >= penetrationImpulse){
+			//Debug.Log("impulse = " + collision.impulse.magnitude);
 		//if (collision.relativeVelocity.magnitude >= penetrationVelocity){ // this bullet should penetrate
 			if (collision.collider.gameObject.tag == "Enemy"){
 				// delete the bullet
@@ -37,6 +37,8 @@ public class bullet : MonoBehaviour {
 				Destroy(gameObject);
 			} else if (collision.collider.gameObject.tag == "Player" || collision.collider.gameObject.layer == 10){
 				// handle this case later
+			} else if (collision.gameObject.GetComponent<bullet>() != null){ // if a bullet
+				//what happens when two bullets collide, even when in the same hand and colliding against each other
 			} else {
 				transform.parent = collision.collider.gameObject.transform;
 				if (collision.collider.gameObject.GetComponent<Rigidbody>() != null){
