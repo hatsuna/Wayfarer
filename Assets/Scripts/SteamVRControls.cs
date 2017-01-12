@@ -6,6 +6,7 @@ using System.Collections.Generic;
 public class SteamVRControls : MonoBehaviour {
 
 	Transform playAreaTransform;
+	PlayAreaPhysics playArea;
 
 	//Includes Push, Pull and Grab
 
@@ -54,6 +55,7 @@ public class SteamVRControls : MonoBehaviour {
 
 	void Awake(){
 		playAreaTransform = FindObjectOfType<SteamVR_PlayArea>().transform;
+		playArea = FindObjectOfType<PlayAreaPhysics>();
 		trackedObj = GetComponent<SteamVR_TrackedObject>();
 		laserpointer = GetComponent<SteamVR_LaserPointer>();
 		jointList = new Queue<FixedJoint>();
@@ -268,9 +270,11 @@ public class SteamVRControls : MonoBehaviour {
 					}					
 					//lets zero Y movement until we get gravity
 
-					playAreaTransform.position += new Vector3(tempX, tempY, tempZ); // move you in the opposite direction
+					//playAreaTransform.position += new Vector3(tempX, tempY, tempZ); // move you in the opposite direction
+					playArea.movePlayArea(new Vector3(tempX,tempY,tempZ));
+
 					sphereCast = true; //allows this function to only be called by one object
-					HapticHandler(hapticMassive);
+					HapticHandler(hapticLarge);
 				} else {
 					//cap velocity to prevent objects from going too crazy
 					//Debug.Log("this object's velocity is: " + rayHits[i].rigidbody.velocity.magnitude);
@@ -285,14 +289,14 @@ public class SteamVRControls : MonoBehaviour {
 			laserpointer.pointer.SetActive(false);
 		}
 
-		//playAreaGravity
+		/*playAreaGravity
 		if (playAreaTransform.position.y > 0){
 			if (playAreaGrav == true){
 				playAreaTransform.position += new Vector3(0, -2 * Time.fixedDeltaTime, 0);
 			}
 		} else {
 			playAreaTransform.position.Scale(new Vector3(1, 0, 1)); // LANDING IS REALLY NAUSEATING
-		}
+		}*/
 
 		// reading controller arc length to interpret as walking/running movement
 		if (device.GetTouch(SteamVR_Controller.ButtonMask.ApplicationMenu)){
@@ -341,28 +345,14 @@ public class SteamVRControls : MonoBehaviour {
 			} else{
 				angularVshift.z = 0;
 			}
-			playAreaTransform.position += new Vector3 (tempX, 0, tempZ);
+			//playAreaTransform.position += new Vector3 (tempX, 0, tempZ);
+			playArea.movePlayArea(new Vector3 (tempX, 0, tempZ));
 		} else{//user lets go of button
 			angularVshift = Vector3.zero;
 			previousArc = Vector3.zero;
 		}
 	}
-
-	/*void OnCollisionEnter(Collision collision){
-		Debug.Log(gameObject.name + " collided with " + collision.collider.gameObject.name);
-
-		if(collision.rigidbody.mass > playerMass){
-			SetHandColliders(false);
-			HapticHandler(hapticMassive);
-		}
-	}
-
-	void OnCollisionExit(Collision collision){
-		if(collision.rigidbody.mass > playerMass){
-			SetHandColliders(true);
-		}
-	}*/
-
+		
 	void LateUpdate(){
 		var device = SteamVR_Controller.Input((int)trackedObj.index);
 		device.TriggerHapticPulse(hapticLength);
