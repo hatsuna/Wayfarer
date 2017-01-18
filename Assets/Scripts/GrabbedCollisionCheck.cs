@@ -33,7 +33,9 @@ public class GrabbedCollisionCheck : MonoBehaviour {
 			SpringJointEnabled = true;
 			//Debug.Log("SpringJoint is Enabled");
 
-		} else if (collision.impulse.magnitude >= springThreshold || collision.rigidbody == null || collision.rigidbody.mass >= charMass){
+		} else if (collision.rigidbody == null || 
+			(collision.impulse.magnitude >= springThreshold && collision.rigidbody.mass >= charMass * 0.5f) || 
+			collision.rigidbody.mass >= charMass){
 			SpringJointEnabled = false;
 			//Debug.Log("Joint Break at " + collision.impulse.magnitude + " impulse force");
 			Destroy(gameObject.GetComponent<FixedJoint>());
