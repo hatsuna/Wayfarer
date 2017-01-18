@@ -38,6 +38,7 @@ public class SteamVRControls : MonoBehaviour {
 	Vector3 angularVshift = Vector3.zero; //1, 0, or -1
 	Vector3 previousArc = Vector3.zero;
 	Vector3 currentArc = Vector3.zero;
+	float speedModifier = 2.0f;
 
 	SteamVR_LaserPointer laserpointer;
 
@@ -204,15 +205,6 @@ public class SteamVRControls : MonoBehaviour {
 			handCollidersActive = true;
 		}
 
-		//Reading for Push/Pull Events
-		/*
-		 * touch - whenever the trigger is touched
-		 * touchdown - whenever the trigger is depressed but not fully
-		 * touchup - whenever the trigger is released
-		 * press- whenever the trigger is depressed passed the halfway point
-		 * pressdown - whenever the trigger is depressed fully
-		 * pressup - whenever the trigger is released fully
-		 */
 		Ray ray = new Ray(transform.position, transform.forward);
 		RaycastHit[] rayHits =  new RaycastHit[0];
 		// Creating a bitmask for layer 8 ("metals")
@@ -264,14 +256,8 @@ public class SteamVRControls : MonoBehaviour {
 					if (playAreaTransform.position.y <= 0 && tempY < 0 ){
 						tempY = 0;
 					}
-
-					if (tempY > 0){
-						playAreaGrav = false;
-					}					
-					//lets zero Y movement until we get gravity
-
-					//playAreaTransform.position += new Vector3(tempX, tempY, tempZ); // move you in the opposite direction
-					playArea.movePlayArea(new Vector3(tempX,tempY,tempZ));
+				
+					playArea.addPlayAreaVelocity(new Vector3(tempX,tempY,tempZ));
 
 					sphereCast = true; //allows this function to only be called by one object
 					HapticHandler(hapticLarge);
@@ -285,18 +271,8 @@ public class SteamVRControls : MonoBehaviour {
 				}
 			}
 		}else{
-			playAreaGrav = true;
 			laserpointer.pointer.SetActive(false);
 		}
-
-		/*playAreaGravity
-		if (playAreaTransform.position.y > 0){
-			if (playAreaGrav == true){
-				playAreaTransform.position += new Vector3(0, -2 * Time.fixedDeltaTime, 0);
-			}
-		} else {
-			playAreaTransform.position.Scale(new Vector3(1, 0, 1)); // LANDING IS REALLY NAUSEATING
-		}*/
 
 		// reading controller arc length to interpret as walking/running movement
 		if (device.GetTouch(SteamVR_Controller.ButtonMask.ApplicationMenu)){
@@ -304,10 +280,13 @@ public class SteamVRControls : MonoBehaviour {
 			// angular velocity = degrees / time
 			// arc length = r * degrees
 			// use Z angular velocity
-			Vector3 angVelocity = device.angularVelocity;
+
+			//Debug.Log(device.velocity.x + " " +  device.velocity.y + " " + device.velocity.z);
+			Vector3 angVelocity = device.velocity; //Valve broke angularVelocity tuning, using regular velocity now
 			angVelocity.y = 0;
 			float tempX = 0;
 			float tempZ = 0;
+
 			// this condition occurs when velocity is zero or switches signs
 			if (angularVshift.x == 0 || angVelocity.x * angularVshift.x <= 0){
 				previousArc.x = currentArc.x;
@@ -345,8 +324,7 @@ public class SteamVRControls : MonoBehaviour {
 			} else{
 				angularVshift.z = 0;
 			}
-			//playAreaTransform.position += new Vector3 (tempX, 0, tempZ);
-			playArea.movePlayArea(new Vector3 (tempX, 0, tempZ));
+			playArea.addPlayAreaVelocity(new Vector3 (speedModifier * tempX, 0, speedModifier * tempZ));
 		} else{//user lets go of button
 			angularVshift = Vector3.zero;
 			previousArc = Vector3.zero;
