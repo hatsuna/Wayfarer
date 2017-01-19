@@ -17,7 +17,7 @@ public class SteamVR_LaserPointer : MonoBehaviour
 {
     public bool active = true;
     public Color color;
-    public float thickness = 0.01f;
+    public float thickness = 0.002f;
     public GameObject holder;
     public GameObject pointer;
     bool isActive = false;
@@ -34,12 +34,14 @@ public class SteamVR_LaserPointer : MonoBehaviour
         holder = new GameObject();
         holder.transform.parent = this.transform;
         holder.transform.localPosition = Vector3.zero;
+		holder.transform.localRotation = Quaternion.identity;
 
-        pointer = GameObject.CreatePrimitive(PrimitiveType.Cube);
+		pointer = GameObject.CreatePrimitive(PrimitiveType.Cube);
         pointer.transform.parent = holder.transform;
         pointer.transform.localScale = new Vector3(thickness, thickness, 100f);
         pointer.transform.localPosition = new Vector3(0f, 0f, 50f);
-        BoxCollider collider = pointer.GetComponent<BoxCollider>();
+		pointer.transform.localRotation = Quaternion.identity;
+		BoxCollider collider = pointer.GetComponent<BoxCollider>();
         if (addRigidBody)
         {
             if (collider)
@@ -56,22 +58,9 @@ public class SteamVR_LaserPointer : MonoBehaviour
                 Object.Destroy(collider);
             }
         }
-
-		//correcting transparency for lasers
-        Material newMaterial = new Material(Shader.Find("Standard"));
-		newMaterial.SetFloat("_Mode", 3);
-		newMaterial.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
-		newMaterial.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-		newMaterial.SetInt("_ZWrite", 0);
-		newMaterial.DisableKeyword("_ALPHATEST_ON");
-		newMaterial.EnableKeyword("_ALPHABLEND_ON");
-		newMaterial.DisableKeyword("_ALPHAPREMULTIPLY_ON");
-		newMaterial.renderQueue = 3000;
+        Material newMaterial = new Material(Shader.Find("Unlit/Color"));
         newMaterial.SetColor("_Color", color);
         pointer.GetComponent<MeshRenderer>().material = newMaterial;
-
-		//correcting laser pointers
-		holder.transform.localEulerAngles = Vector3.zero;
 	}
 
     public virtual void OnPointerIn(PointerEventArgs e)
