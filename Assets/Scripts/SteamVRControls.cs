@@ -7,11 +7,11 @@ public class SteamVRControls : MonoBehaviour {
 
 	Transform playAreaTransform;
 	PlayAreaPhysics playArea;
+	public bulletManager bulletManager;
 
 	//Includes Push, Pull and Grab
 
 	public float playerMass = 70;
-	bool playAreaGrav = true;
 
 	float jointStrength = 15.0f;
 	public bool handCollidersActive = true; // call exitTriggerCheck afterwards if changing
@@ -141,38 +141,40 @@ public class SteamVRControls : MonoBehaviour {
 					//Debug.Log(trigger.name + "is still an active trigger");
 					// THIS GRIP CONDITION IS REALLY REALLY GROSS
 					Rigidbody rbody = trigger.GetComponent<Rigidbody>();
-					if (rbody.mass <= playerMass &&	rbody.isKinematic == false && 
-						trigger.GetComponent<FixedJoint>() == false){
+
+
+					if ((rbody.isKinematic == true || trigger.GetComponent<FixedJoint>() == true) &&
+						trigger.GetComponent<bullet>() == false){
+						bullet triggerBullet = trigger.AddComponent<bullet>();
+						triggerBullet.manager = bulletManager;
+						//triggerBullet.identNumber = ?????;
+						trigger.transform.parent = triggerBullet.manager.bulletHolder.transform;
+					}
+
+					if (rbody.isKinematic){
+						rbody.isKinematic = false;
+					}
+
+
 
 						if(rbody.constraints != RigidbodyConstraints.None){
 							rbody.constraints = RigidbodyConstraints.None;
 						}
 						//GrabTrigger.triggered.transform.position = attachPoint.transform.position; // THIS attaches at the fixed point
-						FixedJoint joint = trigger.AddComponent<FixedJoint>();
+
+					FixedJoint joint;
+					if (trigger.GetComponent<FixedJoint>()){
+						joint = trigger.GetComponent<FixedJoint>();
+					} else {
+						joint = trigger.AddComponent<FixedJoint>();
+					}
 						joint.connectedBody = attachPoint;
 						jointList.Enqueue(joint);
 						trigger.AddComponent<GrabbedCollisionCheck>().springThreshold = jointStrength;
 						trigger.GetComponent<GrabbedCollisionCheck>().charMass = playerMass;
 						HapticHandler(hapticMed);
-					} else {
-						HapticHandler(hapticLarge); 
-					}
 				});
 			}
-			/*if(GrabTrigger.triggered != null){ // old triggered code
-
-				if (GrabTrigger.triggered.GetComponent<Rigidbody>().mass <= playerMass &&
-					GrabTrigger.triggered.GetComponent<Rigidbody>().isKinematic == false &&
-					GrabTrigger.triggered.GetComponent<FixedJoint>() == false){
-					//GrabTrigger.triggered.transform.position = attachPoint.transform.position;
-
-					joint = GrabTrigger.triggered.AddComponent<FixedJoint>();
-					joint.connectedBody = attachPoint;
-					HapticHandler(hapticMed);
-				} else {
-					HapticHandler(hapticMassive);
-				}
-			}*/
 		} else if (jointList.Count > 0 && device.GetTouchUp(SteamVR_Controller.ButtonMask.Grip)){
 			HapticHandler(hapticMed);
 			while(jointList.Count > 0){

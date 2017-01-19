@@ -35,7 +35,7 @@ public class bullet : MonoBehaviour {
 				// delete the bullet
 				manager.recycleBullet(this);
 				Destroy(gameObject);
-			} else if (collision.collider.gameObject.tag == "Player" || collision.collider.gameObject.layer == 10){
+			} else if (collision.collider.gameObject.tag == "Player" ){ // || collision.collider.gameObject.layer == 10){
 				// handle this case later
 			} else if (collision.gameObject.GetComponent<bullet>() != null){ // if a bullet
 				//what happens when two bullets collide, even when in the same hand and colliding against each other

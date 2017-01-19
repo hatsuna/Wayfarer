@@ -3,7 +3,7 @@ using System.Collections;
 
 public class bulletManager : MonoBehaviour {
 
-	GameObject bulletHolder;
+	public GameObject bulletHolder;
 	public bullet bullet;
 	bullet[] bullets;
 	Queue recycledBullets;
