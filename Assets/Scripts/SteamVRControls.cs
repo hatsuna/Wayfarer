@@ -62,18 +62,7 @@ public class SteamVRControls : MonoBehaviour {
 	}
 
 	void Start(){
-		//Correcting Laserpointer transparency
-		Material newMaterial = new Material(Shader.Find("Standard"));
-		newMaterial.SetFloat("_Mode", 3);
-		newMaterial.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
-		newMaterial.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-		newMaterial.SetInt("_ZWrite", 0);
-		newMaterial.DisableKeyword("_ALPHATEST_ON");
-		newMaterial.EnableKeyword("_ALPHABLEND_ON");
-		newMaterial.DisableKeyword("_ALPHAPREMULTIPLY_ON");
-		newMaterial.renderQueue = 3000;
-		newMaterial.SetColor("_Color", laserpointer.color);
-		laserpointer.pointer.GetComponent<MeshRenderer>().material = newMaterial;
+		setLaserMaterials();
 	}
 
 	void OnSceneGUI(){
@@ -359,6 +348,21 @@ public class SteamVRControls : MonoBehaviour {
 		}
 	}
 		
+	void setLaserMaterials(){
+		//Correcting Laserpointer transparency
+		Material newMaterial = new Material(Shader.Find("Standard"));
+		newMaterial.SetFloat("_Mode", 3);
+		newMaterial.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+		newMaterial.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+		newMaterial.SetInt("_ZWrite", 0);
+		newMaterial.DisableKeyword("_ALPHATEST_ON");
+		newMaterial.EnableKeyword("_ALPHABLEND_ON");
+		newMaterial.DisableKeyword("_ALPHAPREMULTIPLY_ON");
+		newMaterial.renderQueue = 3000;
+		newMaterial.SetColor("_Color", laserpointer.color);
+		laserpointer.pointer.GetComponent<MeshRenderer>().material = newMaterial;
+	}
+
 	void exitTriggerCheck(){
 		if(touchPadOverride && !handCollidersActive){
 			triggerExit = true;
