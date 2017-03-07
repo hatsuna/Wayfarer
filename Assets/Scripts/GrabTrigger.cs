@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.Events;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -19,6 +20,7 @@ public class GrabTrigger : MonoBehaviour {
 			//Debug.Log(activator.gameObject.name + " has entered TriggerSphere");
 			activeTriggers.Add(activator.gameObject);
 			activator.gameObject.GetComponent<Rigidbody>().collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+			activator.SendMessage("HandHoverStart", SendMessageOptions.DontRequireReceiver);
 		}
 		/*if(activator.gameObject.layer == 8){ //Metal Layer
 			triggered = activator.gameObject;
@@ -30,8 +32,11 @@ public class GrabTrigger : MonoBehaviour {
 		/*if(deactivated.gameObject == triggered){
 			triggered = null;
 		}*/
-		if (activeTriggers.Remove(deactivated.gameObject) && deactivated.gameObject.layer != 8){
-			deactivated.gameObject.GetComponent<Rigidbody>().collisionDetectionMode = CollisionDetectionMode.Discrete;
+		if (activeTriggers.Remove(deactivated.gameObject)){
+			if (deactivated.gameObject.layer != 8){
+				deactivated.gameObject.GetComponent<Rigidbody>().collisionDetectionMode = CollisionDetectionMode.Discrete;
+			}
+			deactivated.SendMessage("HandHoverEnd", SendMessageOptions.DontRequireReceiver);
 		}
 	}
 }

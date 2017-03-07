@@ -12,12 +12,22 @@ public class GrabbedCollisionCheck : MonoBehaviour {
 
 	public float charMass { get; set; }
 	public float springThreshold { get; set; }
+	float springForce = 0.1f;
 	bool SpringJointEnabled = false;
+
+	Joint joint;
 
 	public bool SpringJointState(){return SpringJointEnabled;}
 
 	void FixedUpdate(){
-		if(SpringJointEnabled){
+		joint = gameObject.GetComponent<Joint>();
+		if( joint == null){
+			Debug.Log("Joint has been broken");
+		}
+		if(SpringJointEnabled && gameObject.GetComponent<SpringJoint>() == null){
+			swapToSpringJoint();
+		} else if (!SpringJointEnabled && gameObject.GetComponent<FixedJoint>() == null){
+			swapToFixedJoint();
 		}
 	}
 
@@ -26,20 +36,20 @@ public class GrabbedCollisionCheck : MonoBehaviour {
 		// Could instead turn off collision with level-bounds geometry for as long as its held
 		// by checking the collision.rigidbody ==/!= null statements
 
+		//Debug.Log("Impulse is " + collision.impulse.magnitude);
+
 		if(collision.gameObject.tag == "Player" || collision.gameObject.GetComponent<GrabbedCollisionCheck>() != null){
 			// do nothing atm
 
-		}else if((springThreshold == null || collision.impulse.magnitude < springThreshold) && (collision.rigidbody != null && collision.rigidbody.mass < charMass)){
-			SpringJointEnabled = true;
+		}else if((springThreshold == 0 || collision.impulse.magnitude < springThreshold)){ //&& 
+			//(collision.rigidbody != null && collision.rigidbody.mass < charMass)){
+			//SpringJointEnabled = true;
 			//Debug.Log("SpringJoint is Enabled");
 
-		} else if (collision.rigidbody == null || 
-			(collision.impulse.magnitude >= springThreshold && collision.rigidbody.mass >= charMass * 0.5f) || 
-			collision.rigidbody.mass >= charMass){
-			SpringJointEnabled = false;
+		} else if (collision.impulse.magnitude >= springThreshold /*&& collision.rigidbody.mass >= charMass * 0.5f*/){
 			//Debug.Log("Joint Break at " + collision.impulse.magnitude + " impulse force");
-			Destroy(gameObject.GetComponent<FixedJoint>());
-			Destroy(this);
+			breakJoint();
+
 		}
 	}
 
@@ -48,5 +58,36 @@ public class GrabbedCollisionCheck : MonoBehaviour {
 			SpringJointEnabled = false;
 			//Debug.Log("SpringJoint is disabled");
 		}
+	}
+
+	void swapToFixedJoint(){
+		FixedJoint newJoint = gameObject.AddComponent<FixedJoint>();
+		newJoint.connectedBody = joint.connectedBody;
+		joint.connectedBody.gameObject.GetComponentInParent<SteamVRControls>().swapJoints(joint, newJoint);
+		joint = newJoint;
+	}
+
+	void swapToSpringJoint(){
+		SpringJoint newJoint = gameObject.AddComponent<SpringJoint>();
+		newJoint.connectedBody = joint.connectedBody;
+		newJoint.maxDistance = 100;
+		newJoint.spring = springForce;
+		newJoint.breakForce = springThreshold;
+		joint.connectedBody.gameObject.GetComponentInParent<SteamVRControls>().swapJoints(joint, newJoint);
+		joint = newJoint;
+	}
+		
+	void breakJoint(){
+		joint.connectedBody.gameObject.GetComponentInParent<SteamVRControls>().removeJoint(joint);
+		if(joint != null){
+			joint.connectedBody = null;
+		}
+		if(SpringJointEnabled){
+			Destroy(gameObject.GetComponent<SpringJoint>());
+		} else {
+			Destroy(gameObject.GetComponent<FixedJoint>());
+		}
+		Destroy(this);
+
 	}
 }

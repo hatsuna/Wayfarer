@@ -79,8 +79,7 @@ public class bulletManager : MonoBehaviour {
 				bulletStack.Push(stackBullet);
 				activated.touchPadValue = 0;
 			}else if(touchPad < 0 && bulletStack.Count > 0){
-				((GameObject)bulletStack.Peek()).SetActive(false);
-				recycleBullet(((GameObject)bulletStack.Pop()).GetComponent<bullet>());
+				removeBulletAddToPouch();
 				activated.touchPadValue = 0;
 			}
 			if(activated.triggerExit){
@@ -88,9 +87,13 @@ public class bulletManager : MonoBehaviour {
 			}
 		} else{
 			while(bulletStack.Count > 0){
-				Rigidbody rbody = ((GameObject)bulletStack.Pop()).GetComponent<Rigidbody>();
-				rbody.transform.parent = bulletHolder.transform;
-				rbody.constraints = RigidbodyConstraints.None;
+				if(((GameObject)bulletStack.Peek()).GetComponent<Joint>() == null){
+					removeBulletAddToPouch();
+				} else { 
+					Rigidbody rbody = ((GameObject)bulletStack.Pop()).GetComponent<Rigidbody>();
+					rbody.transform.parent = bulletHolder.transform;
+					rbody.constraints = RigidbodyConstraints.None;
+				}
 			}
 		}
 	}
@@ -121,6 +124,17 @@ public class bulletManager : MonoBehaviour {
 
 	public void recycleBullet(bullet deleteBullet){
 		recycledBullets.Enqueue(deleteBullet.identNumber);
+	}
+
+	void removeBulletAddToPouch(){
+		((GameObject)bulletStack.Peek()).SetActive(false);
+		recycleBullet(((GameObject)bulletStack.Pop()).GetComponent<bullet>());
+	}
+
+	void OnTriggerEnter(Collider activator){
+		if(activator.GetComponent<Joint>() == null){
+			//Theres a new bullet in ur pouch, delete it and add it to ur stockpile
+		}
 	}
 
 	void OnTriggerStay(Collider activator){

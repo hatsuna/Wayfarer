@@ -55,8 +55,8 @@ public class handCollision : MonoBehaviour {
 
 	bool freeOfLargeObjects(List<GameObject> objects){
 		foreach (GameObject x in objects){
-			if(x.GetComponent<Rigidbody>().mass >= charMass ||
-				(x.layer != 8 && x.layer != 10)){
+			if( x != null && (x.GetComponent<Rigidbody>().mass >= charMass ||
+				(x.layer != 8 && x.layer != 10))){
 				//Debug.Log(x.GetComponent<Rigidbody>().mass + " mass ");
 				return false;
 			}

@@ -104,10 +104,10 @@ public class PlayAreaPhysics : MonoBehaviour {
 			if((cPoint.normal.x != 0) && (CombinedPlayAreaVelocity.x != 0) && 
 				(Mathf.Sign(cPoint.normal.x) != Mathf.Sign(CombinedPlayAreaVelocity.x))){
 				CombinedPlayAreaVelocity.x = 0;
-				Debug.Log("Colliding on X Axis: " + cPoint.normal);
+				//Debug.Log("Colliding on X Axis: " + cPoint.normal);
 			}
 			if((cPoint.normal.y != 0)){
-				Debug.Log("Colliding on Y Axis: " + cPoint.normal);
+				//Debug.Log("Colliding on Y Axis: " + cPoint.normal);
 				if ((CombinedPlayAreaVelocity.y != 0) && (Mathf.Sign(cPoint.normal.y) != Mathf.Sign(CombinedPlayAreaVelocity.y))){
 					CombinedPlayAreaVelocity.y = 0; // negate velocity
 				} else {
@@ -117,7 +117,7 @@ public class PlayAreaPhysics : MonoBehaviour {
 			if((cPoint.normal.z != 0) && (CombinedPlayAreaVelocity.z != 0) &&
 				(Mathf.Sign(cPoint.normal.z) != Mathf.Sign(CombinedPlayAreaVelocity.z))){
 				CombinedPlayAreaVelocity.z = 0;
-				Debug.Log("Colliding on Z Axis: " + cPoint.normal);
+				//Debug.Log("Colliding on Z Axis: " + cPoint.normal);
 			}
 		}
 	}

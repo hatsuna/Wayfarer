@@ -13,7 +13,7 @@ public class SteamVRControls : MonoBehaviour {
 
 	public float playerMass = 70;
 
-	float jointStrength = 15.0f;
+	float jointStrength = 5.0f;
 	public bool handCollidersActive = true; // call exitTriggerCheck afterwards if changing
 
 	public bool triggerExit = false;
@@ -44,8 +44,7 @@ public class SteamVRControls : MonoBehaviour {
 
 	public Rigidbody attachPoint;
 	public GrabTrigger GrabTrigger;
-	//FixedJoint joint;
-	Queue<FixedJoint> jointList;
+	List<Joint> jointList;
 
 	ushort hapticLength = 0;
 	ushort hapticMassive = 2048;
@@ -59,7 +58,7 @@ public class SteamVRControls : MonoBehaviour {
 		playArea = FindObjectOfType<PlayAreaPhysics>();
 		trackedObj = GetComponent<SteamVR_TrackedObject>();
 		laserpointer = GetComponent<SteamVR_LaserPointer>();
-		jointList = new Queue<FixedJoint>();
+		jointList = new List<Joint>();
 	}
 
 	void Start(){
@@ -155,11 +154,13 @@ public class SteamVRControls : MonoBehaviour {
 				GrabTrigger.activeTriggers.ForEach(delegate(GameObject trigger){
 					//Debug.Log(trigger.name + "is still an active trigger");
 					// THIS GRIP CONDITION IS REALLY REALLY GROSS
+
+					trigger.SendMessage("HandHeldBegin", SendMessageOptions.DontRequireReceiver);
+
 					Rigidbody rbody = trigger.GetComponent<Rigidbody>();
 
-
-					if ((rbody.isKinematic == true || trigger.GetComponent<FixedJoint>() == true) &&
-						trigger.GetComponent<bullet>() == false){
+					if ((rbody.isKinematic == true || trigger.GetComponent<Joint>() == true) &&
+						trigger.GetComponent<bullet>() == false && trigger.layer == 8){
 						bullet triggerBullet = trigger.AddComponent<bullet>();
 						triggerBullet.manager = bulletManager;
 						//triggerBullet.identNumber = ?????;
@@ -169,56 +170,66 @@ public class SteamVRControls : MonoBehaviour {
 					if (rbody.isKinematic){
 						rbody.isKinematic = false;
 					}
+						
+					if(rbody.constraints != RigidbodyConstraints.None){
+						rbody.constraints = RigidbodyConstraints.None;
+					}
+					//GrabTrigger.triggered.transform.position = attachPoint.transform.position; // THIS attaches at the fixed point
 
-
-
-						if(rbody.constraints != RigidbodyConstraints.None){
-							rbody.constraints = RigidbodyConstraints.None;
+					Joint joint;
+					if (trigger.GetComponent<Joint>()){
+						Debug.Log("this has a joint already");
+						joint = trigger.GetComponent<Joint>();
+						SteamVRControls attachedController = joint.connectedBody.gameObject.GetComponentInParent<SteamVRControls>();
+						if( attachedController != null){
+							attachedController.removeJoint(joint);
 						}
-						//GrabTrigger.triggered.transform.position = attachPoint.transform.position; // THIS attaches at the fixed point
-
-					FixedJoint joint;
-					if (trigger.GetComponent<FixedJoint>()){
-						joint = trigger.GetComponent<FixedJoint>();
 					} else {
 						joint = trigger.AddComponent<FixedJoint>();
 					}
-						joint.connectedBody = attachPoint;
-						jointList.Enqueue(joint);
+					joint.connectedBody = attachPoint;
+					jointList.Add(joint);
+					if (trigger.GetComponent<GrabbedCollisionCheck>() == null){
 						trigger.AddComponent<GrabbedCollisionCheck>().springThreshold = jointStrength;
 						trigger.GetComponent<GrabbedCollisionCheck>().charMass = playerMass;
-						HapticHandler(hapticMed);
+					}
 				});
+				HapticHandler(hapticMed);
 			}
 		} else if (jointList.Count > 0 && device.GetTouchUp(SteamVR_Controller.ButtonMask.Grip)){
 			HapticHandler(hapticMed);
 			while(jointList.Count > 0){
-				FixedJoint joint = jointList.Dequeue();
-				if (joint != null){
-					var go = joint.gameObject;
-					var rigidbody = go.GetComponent<Rigidbody>();
-					Object.DestroyImmediate(joint);
-					joint = null;
-					//Object.Destroy(go, 15.0f);
-					Destroy(go.GetComponent<GrabbedCollisionCheck>());
-					// We should probably apply the offset between trackedObj.transform.position
-						// and device.transform.pos to insert into the physics sim at the correct
-						// location, however, we would then want to predict ahead the visual representation
-						// by the same amount we are predicting our render poses.
-					var origin = trackedObj.origin ? trackedObj.origin : trackedObj.transform.parent;
-					if (origin != null)
-					{
-						rigidbody.velocity = origin.TransformVector(device.velocity);
-						rigidbody.angularVelocity = origin.TransformVector(device.angularVelocity);
+				if(jointList[jointList.Count - 1] != null){
+					Joint joint = jointList[jointList.Count - 1];
+					if (joint != null && joint.connectedBody != null){
+						var go = joint.gameObject;
+						var rigidbody = go.GetComponent<Rigidbody>();
+						go.SendMessage("HandHeldEnd", SendMessageOptions.DontRequireReceiver);
+						joint.connectedBody = null;
+						Object.DestroyImmediate(joint);
+						Destroy(go.GetComponent<GrabbedCollisionCheck>());
+						jointList.RemoveAt(jointList.Count - 1);
+						joint = null;
+						// We should probably apply the offset between trackedObj.transform.position
+							// and device.transform.pos to insert into the physics sim at the correct
+							// location, however, we would then want to predict ahead the visual representation
+							// by the same amount we are predicting our render poses.
+						var origin = trackedObj.origin ? trackedObj.origin : trackedObj.transform.parent;
+						if (origin != null)
+						{
+							rigidbody.velocity = origin.TransformVector(device.velocity);
+							rigidbody.angularVelocity = origin.TransformVector(device.angularVelocity);
+						}
+						else
+						{
+							rigidbody.velocity = device.velocity;
+							rigidbody.angularVelocity = device.angularVelocity;
+						}
+						rigidbody.maxAngularVelocity = rigidbody.angularVelocity.magnitude;
 					}
-					else
-					{
-						rigidbody.velocity = device.velocity;
-						rigidbody.angularVelocity = device.angularVelocity;
-					}
-					rigidbody.maxAngularVelocity = rigidbody.angularVelocity.magnitude;
 				}
 			}
+			jointList.Clear();
 			handCollidersActive = true;
 		}
 
@@ -245,7 +256,7 @@ public class SteamVRControls : MonoBehaviour {
 				}
 			}
 			for( int i = 0; i < (rayHits.Length); i++){
-				//Debug.Log("you are rayhitting " + rayHits[i].collider.name);
+				Debug.Log("you are rayhitting " + rayHits[i].collider.name);
 				int reverse = 1;
 				if (Pull){
 					reverse = -1;
@@ -254,7 +265,7 @@ public class SteamVRControls : MonoBehaviour {
 				//Debug.Log("mass is " + rayHits[i].transform.parent.GetComponent<Rigidbody>().mass);
 
 				//Does the object have too much mass to push/pull?
-				if (!sphereCast && rayHits[i].transform.parent.name != "BulletHolder" &&
+				if (!sphereCast && rayHits[i].transform.parent != null && rayHits[i].transform.parent.name != "BulletHolder" &&
 					(rayHits[i].transform.parent.GetComponent<Rigidbody>() == null  ||
 						rayHits[i].transform.parent.GetComponent<Rigidbody>().mass > playerMass)) {
 					//Apply force on the player (IF THIS PROVES TO CAUSE NAUSEA, APPLY CONSTANT VELOCITY ON PLAYER INSTEAD)
@@ -277,13 +288,13 @@ public class SteamVRControls : MonoBehaviour {
 					playArea.addPlayAreaVelocity(new Vector3(tempX,tempY,tempZ));
 
 					sphereCast = true; //allows this function to only be called by one object
-					HapticHandler(hapticLarge);
+					HapticHandler(hapticMed);
 				} else {
 					//cap velocity to prevent objects from going too crazy
 					//Debug.Log("this object's velocity is: " + rayHits[i].rigidbody.velocity.magnitude);
 					if (rayHits[i].rigidbody.velocity.magnitude < maxVelocity){
 						rayHits[i].rigidbody.AddForce(transform.forward * (thrust * reverse), ForceMode.Force);
-						HapticHandler(hapticLarge);
+						HapticHandler(hapticMed);
 					}
 				}
 			}
@@ -348,6 +359,29 @@ public class SteamVRControls : MonoBehaviour {
 		}
 	}
 		
+	void exitTriggerCheck(){
+		if(touchPadOverride && !handCollidersActive){
+			triggerExit = true;
+		} else {
+			triggerExit = false;
+		}
+	}
+
+	void attachToHand(SteamVR_Controller.Device device){
+
+	}
+
+	public void swapJoints(Joint jointInList, Joint jointToSwapTo){
+		removeJoint(jointInList);
+		jointList.Add(jointToSwapTo);
+	}
+
+	public void removeJoint(Joint jointInList){
+		if(jointList.Contains(jointInList)){
+			jointList.Remove(jointInList);
+		}
+	}
+
 	void LateUpdate(){
 		var device = SteamVR_Controller.Input((int)trackedObj.index);
 		device.TriggerHapticPulse(hapticLength);
@@ -360,11 +394,5 @@ public class SteamVRControls : MonoBehaviour {
 		}
 	}
 
-	void exitTriggerCheck(){
-		if(touchPadOverride && !handCollidersActive){
-			triggerExit = true;
-		} else {
-			triggerExit = false;
-		}
-	}
+
 }
