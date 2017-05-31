@@ -45,4 +45,5 @@ Temporary Items
 =======
 Temp/
 Library/
+Builds/
 *.userprefs
