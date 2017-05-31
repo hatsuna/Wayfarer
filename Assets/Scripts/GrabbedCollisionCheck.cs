@@ -41,6 +41,9 @@ public class GrabbedCollisionCheck : MonoBehaviour {
 		if(collision.gameObject.tag == "Player" || collision.gameObject.GetComponent<GrabbedCollisionCheck>() != null){
 			// do nothing atm
 
+		} else if (collision.gameObject.tag == "Enemy") {
+			// do something
+
 		}else if((springThreshold == 0 || collision.impulse.magnitude < springThreshold)){ //&& 
 			//(collision.rigidbody != null && collision.rigidbody.mass < charMass)){
 			//SpringJointEnabled = true;

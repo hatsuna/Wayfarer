@@ -25,7 +25,7 @@ public class Metal : MonoBehaviour {
 	void FixedUpdate(){
 		distance = Vector3.Distance(headCamera.position, transform.position);
 		if ( distance <= drawDistance || drawDistance == 0){
-			linerender.startWidth = 0.00001f * (drawDistance / distance);
+			linerender.startWidth = 0.0001f * (drawDistance / distance);
 			linerender.endWidth = linerender.startWidth;
 			linerender.numPositions = 2;
 			//linerender.SetVertexCount(2);

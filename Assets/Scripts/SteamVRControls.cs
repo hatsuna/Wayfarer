@@ -232,7 +232,7 @@ public class SteamVRControls : MonoBehaviour {
 			laserpointer.pointer.SetActive(true); // on Trigger touch, draw "spherecast" object
 			RaycastHit hit;
 			thrust = minThrust + (Mathf.Pow((maxThrust - minThrust),(device.GetAxis(Valve.VR.EVRButtonId.k_EButton_SteamVR_Trigger).x)));
-			powerStrengthText.GetComponent<TextMesh>().text = (thrust).ToString();
+			powerStrengthText.GetComponent<TextMesh>().text = ((int)thrust).ToString();
 			hapticVar = (ushort) Mathf.Lerp((float)hapticSmall, (float)hapticMed, (thrust / maxThrust));
 			HapticHandler(hapticVar);
 			sphereCast = false;
@@ -245,7 +245,7 @@ public class SteamVRControls : MonoBehaviour {
 				}
 			}
 			for( int i = 0; i < (rayHits.Length); i++){
-				Debug.Log("you are rayhitting " + rayHits[i].collider.name);
+				//Debug.Log("you are rayhitting " + rayHits[i].collider.name);
 				int reverse = 1;
 				if (Pull){
 					reverse = -1;
